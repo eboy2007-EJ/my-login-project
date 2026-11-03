@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Registration</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- The bubbles -->
+  <div class="bubbles">
+      <div class="bubbles">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+      </div>
+  </div>
+
+  <!-- The Main Container -->
+  <div class="container">
+    
+    <!-- Registration Form -->
+    <div class="form-box" id="register-box">
+      <h2>Create an Account</h2>
+      <form id="register-form">
+        <input type="email" id="reg-email" placeholder="Email" required>
+        <input type="password" id="reg-password" placeholder="Password" required>
+        <button type="submit">Sign Up</button>
+      </form>
+      <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+    </div>
+
+    <!-- Login Form (Hidden by default) -->
+    <div class="form-box hidden" id="login-box">
+      <h2>Welcome Back</h2>
+      <form id="login-form">
+        <input type="email" id="login-email" placeholder="Email" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button type="submit">Login</button>
+      </form>
+      <!-- Changed this to be super clear -->
+      <p style="margin-top: 15px;">Don't have an account? <br> <a href="#" id="show-register" class="switch-link">Create one here</a></p>
+      <p style="margin-top: 10px;"><a href="#" id="show-forgot" class="forgot-link">Forgot Password?</a></p>
+    </div>
+      
+    </div>
+        <!-- Success/Dashboard box (Hidden by default) -->
+    <div class="form-box hidden" id="dashboard-box">
+      
+      <!-- The scrollable area -->
+      <div class="scroll-content">
+        <h2 style="color: #4facfe; margin-bottom: 10px;">Your Dashboard</h2>
+        
+        <!-- This is where the email will show up -->
+        <p id="welcome-message" style="font-size: 16px; margin-bottom: 20px; color: #00ffcc;"></p>
+        
+        <hr style="border-color: #4facfe; margin-bottom: 20px;">
+        
+        <h3>Account Settings</h3>
+        <p>Here you can manage your account. You can change your password, update your email, or delete your account.</p>
+        
+        <hr style="border-color: #4facfe; margin: 20px 0;">
+        
+        <h3>Terms of Service & Privacy</h3>
+        <p>Welcome to our platform. By using this service, you agree to the following terms and conditions. Please read them carefully.</p>
+        <p>1. <strong>Privacy:</strong> We do not share your personal data with third parties. Your password is securely hashed in our database and cannot be read by anyone.</p>
+        <p>2. <strong>Usage:</strong> You agree not to use this platform for any illegal activities or to spam other users.</p>
+        <p>3. <strong>Security:</strong> You are responsible for keeping your password safe. If you forget your password, you can use the "Forgot Password" feature on the login screen.</p>
+        <p>4. <strong>Cookies:</strong> We use basic session data to keep you logged in while you browse the dashboard.</p>
+        <p>5. <strong>Changes:</strong> We may update these terms from time to time. Continued use of the app means you accept the new terms.</p>
+        <p>Thank you for being part of our community!</p>
+      </div>
+
+      <!-- The Log Out button stays at the bottom -->
+      <button id="logout-btn" style="margin-top: 10px;">Log Out</button>
+    </div>
+  </div> <!-- This closes the .container -->
+
+  <script src="app.js"></script>
+</body>
+</html>

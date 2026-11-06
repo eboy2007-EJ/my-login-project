@@ -5,151 +5,79 @@
   font-family: 'Georgia', serif;
 }
 
-/* 1. Background & Bubbles Setup */
+/* Background & Bubbles */
 body {
-  background: linear-gradient(135deg, #0b1021, #1a0b2e); /* Slightly brighter navy/purple gradient */
+  background: linear-gradient(135deg, #0b1021, #1a0b2e); 
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   overflow: hidden; 
   position: relative;
 }
 
-/* Base styles for all bubbles */
 .bubbles {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  z-index: 0; /* Keep behind the form */
+  z-index: 0; 
   pointer-events: none;
 }
 
 .bubbles div {
   position: absolute;
+  bottom: -100px;
   border-radius: 50%;
   animation: floatUp 8s infinite ease-in;
 }
 
-/* 1. Bottom Left */
-.bubbles div:nth-child(1) { 
-  left: 5%; bottom: -50px; width: 40px; height: 40px; 
-  background: rgba(0, 255, 255, 0.4); box-shadow: 0 0 20px cyan, inset 0 0 15px white;
-  animation-duration: 10s; 
-}
-/* 2. Bottom Right */
-.bubbles div:nth-child(2) { 
-  right: 10%; bottom: -70px; width: 70px; height: 70px; 
-  background: rgba(255, 0, 255, 0.3); box-shadow: 0 0 25px magenta, inset 0 0 15px white;
-  animation-duration: 14s; animation-delay: 2s; 
-}
-/* 3. Mid Left (Starting off-screen left) */
-.bubbles div:nth-child(3) { 
-  left: -100px; top: 40%; width: 50px; height: 50px; 
-  background: rgba(0, 255, 100, 0.5); box-shadow: 0 0 20px #00ff64, inset 0 0 10px white;
-  animation: floatRight 12s infinite ease-in; animation-delay: 1s; 
-}
-/* 4. Mid Right (Starting off-screen right) */
-.bubbles div:nth-child(4) { 
-  right: -100px; top: 60%; width: 60px; height: 60px; 
-  background: rgba(255, 255, 0, 0.4); box-shadow: 0 0 20px yellow, inset 0 0 15px white;
-  animation: floatLeft 15s infinite ease-in; animation-delay: 4s; 
-}
-/* 5. Bottom Center */
-.bubbles div:nth-child(5) { 
-  left: 45%; bottom: -30px; width: 30px; height: 30px; 
-  background: rgba(0, 150, 255, 0.5); box-shadow: 0 0 20px #0096ff, inset 0 0 10px white;
-  animation-duration: 11s; animation-delay: 3s; 
-}
-/* 6. Top Left */
-.bubbles div:nth-child(6) { 
-  left: 20%; top: -100px; width: 35px; height: 35px; 
-  background: rgba(255, 100, 0, 0.4); box-shadow: 0 0 20px orange, inset 0 0 10px white;
-  animation: floatDown 10s infinite ease-in; animation-delay: 5s; 
-}
-/* 7. Top Right */
-.bubbles div:nth-child(7) { 
-  right: 25%; top: -100px; width: 45px; height: 45px; 
-  background: rgba(150, 0, 255, 0.4); box-shadow: 0 0 20px purple, inset 0 0 10px white;
-  animation: floatDown 13s infinite ease-in; animation-delay: 2s; 
-}
-/* 8. Tiny Bottom Left */
-.bubbles div:nth-child(8) { 
-  left: 25%; bottom: -20px; width: 20px; height: 20px; 
-  background: rgba(255, 255, 255, 0.4); box-shadow: 0 0 15px white, inset 0 0 5px white;
-  animation-duration: 8s; animation-delay: 1s; 
-}
-/* 9. Tiny Bottom Right */
-.bubbles div:nth-child(9) { 
-  right: 35%; bottom: -40px; width: 25px; height: 25px; 
-  background: rgba(0, 255, 200, 0.4); box-shadow: 0 0 15px teal, inset 0 0 5px white;
-  animation-duration: 9s; animation-delay: 3s; 
-}
-/* 10. Mid Left Low */
-.bubbles div:nth-child(10) { 
-  left: -50px; top: 70%; width: 40px; height: 40px; 
-  background: rgba(255, 0, 100, 0.4); box-shadow: 0 0 20px pink, inset 0 0 10px white;
-  animation: floatRight 14s infinite ease-in; animation-delay: 5s; 
-}
-
-/* --- THE ANIMATIONS --- */
+.bubbles div:nth-child(1) { left: 15%; width: 40px; height: 40px; background: rgba(0, 255, 255, 0.4); box-shadow: 0 0 20px cyan, inset 0 0 15px white; animation-duration: 10s; }
+.bubbles div:nth-child(2) { left: 35%; width: 70px; height: 70px; background: rgba(255, 0, 255, 0.3); box-shadow: 0 0 25px magenta, inset 0 0 15px white; animation-duration: 14s; animation-delay: 2s; }
+.bubbles div:nth-child(3) { left: 65%; width: 30px; height: 30px; background: rgba(0, 255, 100, 0.5); box-shadow: 0 0 20px #00ff64, inset 0 0 10px white; animation-duration: 9s; animation-delay: 1s; }
+.bubbles div:nth-child(4) { left: 85%; width: 50px; height: 50px; background: rgba(255, 255, 0, 0.4); box-shadow: 0 0 20px yellow, inset 0 0 15px white; animation-duration: 12s; animation-delay: 4s; }
+.bubbles div:nth-child(5) { left: 50%; width: 25px; height: 25px; background: rgba(0, 150, 255, 0.5); box-shadow: 0 0 20px #0096ff, inset 0 0 10px white; animation-duration: 11s; animation-delay: 3s; }
 
 @keyframes floatUp {
   0% { transform: translateY(0) scale(1); opacity: 1; }
   100% { transform: translateY(-110vh) scale(1.5); opacity: 0; }
 }
 
-@keyframes floatDown {
-  0% { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(110vh) scale(1.5); opacity: 0; }
-}
-
-@keyframes floatRight {
-  0% { transform: translateX(0) scale(1); opacity: 1; }
-  100% { transform: translateX(110vw) scale(1.5); opacity: 0; }
-}
-
-@keyframes floatLeft {
-  0% { transform: translateX(0) scale(1); opacity: 1; }
-  100% { transform: translateX(-110vw) scale(1.5); opacity: 0; }
-}
-
-@keyframes floatUp {
-  0% { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(-110vh) scale(1.5); opacity: 0; }
-}
-
-/* 3. The Form Box (Fixed Glitch) */
+/* --- THE MAIN BOX --- */
 .container {
-  .container {
   background-color: #0d1b3e; 
-  padding: 40px; /* Gives space inside the box */
+  padding: 40px;
   border-radius: 15px;
-  width: 380px; /* THIS FIXES IT: Sets a fixed, short width */
-  max-width: 90%; /* Keeps it from overflowing on small phone screens */
+  /* This ensures it stays short on PC and fits on mobile */
+  width: 100%;
+  max-width: 380px; 
   position: relative;
   z-index: 10;
+  /* This creates the glow WITHOUT the ghost box glitch */
   box-shadow: 
     0 0 15px rgba(0, 123, 255, 0.8), 
     0 0 30px rgba(233, 30, 99, 0.6),
     0 0 50px rgba(155, 89, 182, 0.4);
-  border: 2px solid #4facfe; 
-  margin: auto; /* Keeps it perfectly centered */
-}
-}
+  /* NO BORDER! That's what caused the ghost box */
 }
 
-.form-box h2, .form-box p {
+/* Fix for mobile screens to add space at the top/bottom */
+@media (max-height: 600px) {
+  body { align-items: flex-start; padding-top: 20px; padding-bottom: 20px; overflow-y: auto; }
+}
+
+.form-box h2 {
+  color: white;
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 26px;
+  text-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+.form-box p {
   color: white;
   text-align: center;
 }
 
-.form-box h2 {
-  margin-bottom: 25px;
-  font-size: 28px;
-  text-shadow: 0 0 10px rgba(255,255,255,0.3);
-}
-
-/* 4. Input Fields */
+/* Inputs */
 input {
   width: 100%;
   padding: 12px;
@@ -161,17 +89,10 @@ input {
   font-family: Arial, sans-serif;
 }
 
-input::placeholder {
-  color: #a0aec0;
-}
+input::placeholder { color: #a0aec0; }
+input:focus { outline: none; border-color: #e91e63; box-shadow: 0 0 10px rgba(233, 30, 99, 0.5); }
 
-input:focus {
-  outline: none;
-  border-color: #e91e63;
-  box-shadow: 0 0 10px rgba(233, 30, 99, 0.5);
-}
-
-/* 5. Buttons */
+/* Buttons */
 button {
   width: 100%;
   padding: 12px;
@@ -185,23 +106,12 @@ button {
   transition: 0.3s;
 }
 
-button:hover {
-  background: linear-gradient(90deg, #0056b3, #7b2cbf);
-  transform: scale(1.02);
-}
+button:hover { background: linear-gradient(90deg, #0056b3, #7b2cbf); transform: scale(1.02); }
 
-a {
-  color: #4facfe;
-  text-decoration: none;
-  font-weight: bold;
-}
+a { color: #4facfe; text-decoration: none; font-weight: bold; }
+a:hover { text-decoration: underline; color: #e91e63; }
 
-a:hover {
-  text-decoration: underline;
-  color: #e91e63;
-}
-
-/* 6. Success/Login State */
+/* Dashboard & Hidden classes */
 #welcome-message {
   font-size: 18px;
   font-weight: bold;
@@ -212,141 +122,29 @@ a:hover {
   margin-bottom: 20px;
 }
 
-#logout-btn {
-  background: #007bff !important; 
-}
+#logout-btn { background: #007bff !important; }
+#logout-btn:hover { background: #0056b3 !important; }
 
-#logout-btn:hover {
-  background: #0056b3 !important;
-}
+.hidden { display: none !important; }
 
-.hidden {
-  display: none;
-}/* Make the dashboard box taller and allow scrolling inside */
 #dashboard-box {
-  height: 500px; /* You can change this number to make the box taller */
+  height: 450px;
   display: flex;
   flex-direction: column;
 }
 
-/* The scrollable area inside the box */
 .scroll-content {
-  flex: 1; /* Takes up all remaining space */
-  overflow-y: auto; /* Adds the scrollbar if text gets too long */
-  padding-right: 10px; /* Keeps text away from the scrollbar */
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
   margin-bottom: 15px;
 }
 
-/* Style the text inside the dashboard */
-.scroll-content h3 {
-  color: #4facfe;
-  margin-bottom: 10px;
-  font-size: 18px;
-}
+.scroll-content h3 { color: #4facfe; margin-bottom: 10px; font-size: 18px; text-align: left; }
+.scroll-content p { color: #ccc; text-align: left; font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
 
-.scroll-content p {
-  color: #ccc;
-  text-align: left; /* Align text to the left for reading */
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 10px;
-}
-
-/* Style the dashboard buttons */
-.action-btn {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 10px;
-  font-size: 14px;
-}/* Completely hide elements from the screen so they don't take up space */
-.hidden {
-  display: none !important; 
-}
-
-/* Make sure the container can handle the taller dashboard */
-.container {
-  /* If your dashboard is taller, we don't want it to go off the top of the screen */
-  max-height: 90vh; 
-}
-
-/* Make the dashboard scroll content look perfect */
-#dashboard-box {
-  height: 450px; /* The height of the dashboard */
-  display: flex;
-  flex-direction: column;
-}/* Make the "Go to Login" and "Create one here" links big and bright */
-.switch-link {
-  display: inline-block;
-  margin-top: 5px;
-  font-size: 16px;
-  color: #00ffcc !important; /* Bright cyan */
-  font-weight: bold;
-  text-decoration: underline;
-  transition: 0.3s;
-}
-
-.switch-link:hover {
-  color: #ff0055 !important; /* Turns pink when you hover */
-  transform: scale(1.1);
-}
-
-.forgot-link {
-  font-size: 14px;
-  color: #aaa !important;
-}
-
-.forgot-link:hover {
-  color: white !important;
-}/* --- DASHBOARD SCROLLING STYLES --- */
-
-/* Completely hide elements from the screen so they don't take up space */
-.hidden {
-  display: none !important; 
-}
-
-/* Make the dashboard box taller */
-#dashboard-box {
-  height: 480px; /* You can change this number to make the box taller */
-  display: flex;
-  flex-direction: column;
-}
-
-/* The scrollable area inside the box */
-.scroll-content {
-  flex: 1; /* Takes up all remaining space */
-  overflow-y: auto; /* Adds the scrollbar if text gets too long */
-  padding-right: 10px; /* Keeps text away from the scrollbar */
-  margin-bottom: 15px;
-}
-
-/* Style the text inside the dashboard */
-.scroll-content h3 {
-  color: #4facfe;
-  margin-bottom: 10px;
-  font-size: 18px;
-  text-align: left;
-}
-
-.scroll-content p {
-  color: #ccc;
-  text-align: left; /* Align text to the left for reading */
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 10px;
-}
-
-/* Make the scrollbar look cool (Optional) */
-.scroll-content::-webkit-scrollbar {
-  width: 8px;
-}
-.scroll-content::-webkit-scrollbar-track {
-  background: #0d1b3e; 
-  border-radius: 10px;
-}
-.scroll-content::-webkit-scrollbar-thumb {
-  background: #4facfe; 
-  border-radius: 10px;
-}
-.scroll-content::-webkit-scrollbar-thumb:hover {
-  background: #007bff; 
-}
+/* Cool Scrollbar */
+.scroll-content::-webkit-scrollbar { width: 8px; }
+.scroll-content::-webkit-scrollbar-track { background: #0d1b3e; border-radius: 10px; }
+.scroll-content::-webkit-scrollbar-thumb { background: #4facfe; border-radius: 10px; }
+.scroll-content::-webkit-scrollbar-thumb:hover { background: #007bff; }

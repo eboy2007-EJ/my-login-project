@@ -122,9 +122,10 @@ body {
 .container {
   .container {
   background-color: #0d1b3e; 
-  padding: 60px 40px; /* Changed padding: 60px top/bottom, 40px left/right makes it longer */
+  padding: 40px; /* Gives space inside the box */
   border-radius: 15px;
-  width: 450px; /* Changed from 400px to 450px to make it wider */
+  width: 380px; /* THIS FIXES IT: Sets a fixed, short width */
+  max-width: 90%; /* Keeps it from overflowing on small phone screens */
   position: relative;
   z-index: 10;
   box-shadow: 
@@ -132,6 +133,8 @@ body {
     0 0 30px rgba(233, 30, 99, 0.6),
     0 0 50px rgba(155, 89, 182, 0.4);
   border: 2px solid #4facfe; 
+  margin: auto; /* Keeps it perfectly centered */
+}
 }
 }
 

@@ -19,25 +19,28 @@ body {
 .bubbles {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  z-index: -1; /* This pushes the bubbles BEHIND everything */
+  z-index: 0;
   pointer-events: none;
   overflow: hidden; /* This stops bubbles from causing scrollbars */
 }
-}
-}
 
-.bubbles div {
+.bubbles > div {
   position: absolute;
   bottom: -100px;
   border-radius: 50%;
   animation: floatUp 8s infinite ease-in;
 }
 
-.bubbles div:nth-child(1) { left: 15%; width: 40px; height: 40px; background: rgba(0, 255, 255, 0.4); box-shadow: 0 0 20px cyan, inset 0 0 15px white; animation-duration: 10s; }
-.bubbles div:nth-child(2) { left: 35%; width: 70px; height: 70px; background: rgba(255, 0, 255, 0.3); box-shadow: 0 0 25px magenta, inset 0 0 15px white; animation-duration: 14s; animation-delay: 2s; }
-.bubbles div:nth-child(3) { left: 65%; width: 30px; height: 30px; background: rgba(0, 255, 100, 0.5); box-shadow: 0 0 20px #00ff64, inset 0 0 10px white; animation-duration: 9s; animation-delay: 1s; }
-.bubbles div:nth-child(4) { left: 85%; width: 50px; height: 50px; background: rgba(255, 255, 0, 0.4); box-shadow: 0 0 20px yellow, inset 0 0 15px white; animation-duration: 12s; animation-delay: 4s; }
-.bubbles div:nth-child(5) { left: 50%; width: 25px; height: 25px; background: rgba(0, 150, 255, 0.5); box-shadow: 0 0 20px #0096ff, inset 0 0 10px white; animation-duration: 11s; animation-delay: 3s; }
+.bubbles > div:nth-child(1) { left: 8%; width: 40px; height: 40px; background: rgba(255, 0, 80, 0.4); box-shadow: 0 0 20px #ff0050, inset 0 0 15px white; animation-duration: 10s; }
+.bubbles > div:nth-child(2) { left: 18%; width: 70px; height: 70px; background: rgba(255, 130, 0, 0.3); box-shadow: 0 0 25px #ff8200, inset 0 0 15px white; animation-duration: 14s; animation-delay: 2s; }
+.bubbles > div:nth-child(3) { left: 31%; width: 30px; height: 30px; background: rgba(255, 230, 0, 0.5); box-shadow: 0 0 20px #ffe600, inset 0 0 10px white; animation-duration: 9s; animation-delay: 1s; }
+.bubbles > div:nth-child(4) { left: 43%; width: 50px; height: 50px; background: rgba(0, 220, 100, 0.4); box-shadow: 0 0 20px #00dc64, inset 0 0 15px white; animation-duration: 12s; animation-delay: 4s; }
+.bubbles > div:nth-child(5) { left: 55%; width: 25px; height: 25px; background: rgba(0, 150, 255, 0.5); box-shadow: 0 0 20px #0096ff, inset 0 0 10px white; animation-duration: 11s; animation-delay: 3s; }
+.bubbles > div:nth-child(6) { left: 64%; width: 60px; height: 60px; background: rgba(75, 0, 200, 0.35); box-shadow: 0 0 22px #4b00c8, inset 0 0 15px white; animation-duration: 13s; animation-delay: 5s; }
+.bubbles > div:nth-child(7) { left: 73%; width: 35px; height: 35px; background: rgba(255, 0, 220, 0.4); box-shadow: 0 0 20px #ff00dc, inset 0 0 12px white; animation-duration: 9s; animation-delay: 2s; }
+.bubbles > div:nth-child(8) { left: 82%; width: 55px; height: 55px; background: rgba(0, 255, 220, 0.35); box-shadow: 0 0 22px #00ffdc, inset 0 0 15px white; animation-duration: 12s; animation-delay: 6s; }
+.bubbles > div:nth-child(9) { left: 92%; width: 30px; height: 30px; background: rgba(255, 70, 120, 0.45); box-shadow: 0 0 20px #ff4678, inset 0 0 10px white; animation-duration: 10s; animation-delay: 4s; }
+.bubbles > div:nth-child(10) { left: 49%; width: 45px; height: 45px; background: rgba(80, 255, 60, 0.35); box-shadow: 0 0 20px #50ff3c, inset 0 0 12px white; animation-duration: 15s; animation-delay: 7s; }
 
 @keyframes floatUp {
   0% { transform: translateY(0) scale(1); opacity: 1; }
@@ -121,6 +124,7 @@ a:hover { text-decoration: underline; color: #e91e63; }
   text-align: center;
   background: linear-gradient(90deg, #4facfe, #9b59b6, #e91e63);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 20px;
 }
@@ -151,3 +155,32 @@ a:hover { text-decoration: underline; color: #e91e63; }
 .scroll-content::-webkit-scrollbar-track { background: #0d1b3e; border-radius: 10px; }
 .scroll-content::-webkit-scrollbar-thumb { background: #4facfe; border-radius: 10px; }
 .scroll-content::-webkit-scrollbar-thumb:hover { background: #007bff; }
+
+/* --- SHOW PASSWORD CHECKBOX --- */
+.show-password-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 15px;
+  margin-top: -5px;
+}
+
+.show-pass-checkbox {
+  width: 16px !important;
+  height: 16px;
+  margin: 0 10px 0 0 !important;
+  cursor: pointer;
+  accent-color: #007bff;
+}
+
+.show-password-container label {
+  color: #ccc;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.show-password-container label:hover {
+  color: white;
+}

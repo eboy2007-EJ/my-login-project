@@ -26,6 +26,18 @@ if (backToLogin) backToLogin.addEventListener('click', (e) => { e.preventDefault
 
 document.getElementById('logout-btn').addEventListener('click', () => { hideAll(); loginBox.classList.remove('hidden'); });
 
+function setupPasswordVisibility(checkboxId, passwordInputId) {
+  const checkbox = document.getElementById(checkboxId);
+  const passwordInput = document.getElementById(passwordInputId);
+
+  checkbox.addEventListener('change', () => {
+    passwordInput.type = checkbox.checked ? 'text' : 'password';
+  });
+}
+
+setupPasswordVisibility('show-reg-pass', 'reg-password');
+setupPasswordVisibility('show-login-pass', 'login-password');
+
 // Handle Registration
 document.getElementById('register-form').addEventListener('submit', async (e) => {
   e.preventDefault();

@@ -4,6 +4,7 @@ const dashboardBox = document.getElementById('dashboard-box');
 const forgotBox = document.getElementById('forgot-box');
 const resetBox = document.getElementById('reset-box');
 const welcomeMessage = document.getElementById('welcome-message');
+let passwordResetEmail = '';
 
 // Helper to hide ALL boxes
 function hideAll() {
@@ -19,10 +20,22 @@ document.getElementById('show-login').addEventListener('click', (e) => { e.preve
 document.getElementById('show-register').addEventListener('click', (e) => { e.preventDefault(); hideAll(); registerBox.classList.remove('hidden'); });
 
 const showForgot = document.getElementById('show-forgot');
-if (showForgot) showForgot.addEventListener('click', (e) => { e.preventDefault(); hideAll(); forgotBox.classList.remove('hidden'); });
+if (showForgot) showForgot.addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('forgot-email').value = document.getElementById('login-email').value;
+  hideAll();
+  forgotBox.classList.remove('hidden');
+});
 
 const backToLogin = document.getElementById('back-to-login');
 if (backToLogin) backToLogin.addEventListener('click', (e) => { e.preventDefault(); hideAll(); loginBox.classList.remove('hidden'); });
+
+const backToLoginFromReset = document.getElementById('back-to-login-from-reset');
+if (backToLoginFromReset) backToLoginFromReset.addEventListener('click', (e) => {
+  e.preventDefault();
+  hideAll();
+  loginBox.classList.remove('hidden');
+});
 
 document.getElementById('logout-btn').addEventListener('click', () => { hideAll(); loginBox.classList.remove('hidden'); });
 
@@ -37,6 +50,63 @@ function setupPasswordVisibility(checkboxId, passwordInputId) {
 
 setupPasswordVisibility('show-reg-pass', 'reg-password');
 setupPasswordVisibility('show-login-pass', 'login-password');
+
+document.getElementById('forgot-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('forgot-email').value.trim();
+  const submitButton = e.currentTarget.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+
+  try {
+    const response = await fetch('/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to request a reset code.');
+
+    passwordResetEmail = email;
+    hideAll();
+    resetBox.classList.remove('hidden');
+  } catch (error) {
+    console.error('Password reset request failed:', error);
+    alert(error.message || 'Failed to connect to the server.');
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+document.getElementById('reset-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const code = document.getElementById('reset-code').value.trim();
+  const newPassword = document.getElementById('new-password').value;
+  const submitButton = e.currentTarget.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+
+  try {
+    const response = await fetch('/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: passwordResetEmail, code, newPassword })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to reset the password.');
+
+    hideAll();
+    loginBox.classList.remove('hidden');
+    document.getElementById('login-email').value = passwordResetEmail;
+    document.getElementById('login-password').value = '';
+    document.getElementById('reset-code').value = '';
+    document.getElementById('new-password').value = '';
+    alert(data.message);
+  } catch (error) {
+    console.error('Password reset failed:', error);
+    alert(error.message || 'Failed to connect to the server.');
+  } finally {
+    submitButton.disabled = false;
+  }
+});
 
 // Handle Registration
 document.getElementById('register-form').addEventListener('submit', async (e) => {

@@ -46,7 +46,7 @@
         
         <button type="submit">Sign Up</button>
       </form>
-      <p style="margin-top: 15px;">Already have an account? <br> <a href="#" id="show-login" class="switch-link">Go to Login</a></p>
+      <p style="margin-top: 15px;">Already have an account? <br> <a href="#" id="show-login" class="switch-link">Login</a></p>
     </div>
 
     <!-- 2. LOGIN FORM -->
@@ -71,7 +71,7 @@
     <!-- Forgot Password Form (Hidden) -->
     <div class="form-box hidden" id="forgot-box">
       <h2>Reset Password</h2>
-      <p style="margin-bottom: 15px; font-size: 14px;">Enter your email and we'll send you a 6-digit code.</p>
+      <p style="margin-bottom: 15px; font-size: 14px;">Enter your email. If an account exists, we'll send a 6-digit code.</p>
       <form id="forgot-form">
         <input type="email" id="forgot-email" placeholder="Email" required>
         <button type="submit">Send Code</button>
@@ -82,12 +82,13 @@
     <!-- Reset Code Form (Hidden) -->
     <div class="form-box hidden" id="reset-box">
       <h2>Enter Code</h2>
-      <p style="margin-bottom: 15px; font-size: 14px;">Check your email for the 6-digit code.</p>
+      <p style="margin-bottom: 15px; font-size: 14px;">If an account exists for that email, a code will arrive shortly.</p>
       <form id="reset-form">
-        <input type="text" id="reset-code" placeholder="6-digit code" required maxlength="6">
-        <input type="password" id="new-password" placeholder="New Password" required>
+        <input type="text" id="reset-code" placeholder="6-digit code" required maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code">
+        <input type="password" id="new-password" placeholder="New Password (at least 8 characters)" required minlength="8" autocomplete="new-password">
         <button type="submit">Update Password</button>
       </form>
+      <p style="margin-top: 10px;"><a href="#" id="back-to-login-from-reset">Back to Login</a></p>
     </div>
 
     <!-- Success/Dashboard box (Hidden by default) -->

@@ -3,7 +3,6 @@ const loginBox = document.getElementById('login-box');
 const dashboardBox = document.getElementById('dashboard-box');
 const forgotBox = document.getElementById('forgot-box');
 const resetBox = document.getElementById('reset-box');
-const welcomeMessage = document.getElementById('welcome-message');
 const mainContainer = document.querySelector('.container');
 let passwordResetEmail = '';
 
@@ -17,11 +16,10 @@ function hideAll() {
   if (resetBox) resetBox.classList.add('hidden');
 }
 
-function showDashboard(message) {
+function showDashboard() {
   hideAll();
   mainContainer.classList.add('dashboard-active');
   dashboardBox.classList.remove('hidden');
-  welcomeMessage.innerText = message;
   activateDashboardPanel('home-panel');
 }
 
@@ -151,7 +149,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
     const data = await response.json();
     
     if (response.ok) {
-      showDashboard(`You have successfully registered as ${email}.`);
+      showDashboard();
     } else {
       alert("Error: " + data.error);
     }
@@ -177,7 +175,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const data = await response.json();
     
     if (response.ok) {
-      showDashboard(`Welcome back, ${email}!`);
+      showDashboard();
     } else {
       alert("Error: " + data.error);
     }

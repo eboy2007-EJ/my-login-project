@@ -12,7 +12,9 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  overflow: hidden; 
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
 }
 
@@ -50,11 +52,10 @@ body {
 /* --- THE MAIN BOX --- */
 .container {
   background-color: #0d1b3e; 
-  padding: 40px;
+  padding: clamp(20px, 6vw, 32px);
   border-radius: 15px;
-  /* This ensures it stays short on PC and fits on mobile */
-  width: 100%;
-  max-width: 380px; 
+  width: calc(100% - 32px);
+  max-width: 340px;
   position: relative;
   z-index: 10;
   /* This creates the glow WITHOUT the ghost box glitch */
@@ -74,7 +75,7 @@ body {
   color: white;
   text-align: center;
   margin-bottom: 25px;
-  font-size: 26px;
+  font-size: clamp(22px, 6vw, 26px);
   text-shadow: 0 0 10px rgba(255,255,255,0.3);
 }
 
@@ -124,7 +125,9 @@ a:hover { text-decoration: underline; color: #e91e63; }
 .hidden { display: none !important; }
 
 #dashboard-box {
-  height: 450px;
+  height: min(450px, calc(100vh - 32px));
+  height: min(450px, calc(100dvh - 32px));
+  min-height: 260px;
   display: flex;
   flex-direction: column;
 }
@@ -138,6 +141,7 @@ a:hover { text-decoration: underline; color: #e91e63; }
 
 .dashboard-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -147,7 +151,7 @@ a:hover { text-decoration: underline; color: #e91e63; }
 .dashboard-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
 
 .dashboard-tabs .dashboard-tab,
@@ -215,10 +219,10 @@ a:hover { text-decoration: underline; color: #e91e63; }
   .container.dashboard-active {
     width: calc(100% - 32px);
     margin-left: 16px;
-    padding: 24px;
+    padding: clamp(18px, 5vw, 24px);
   }
   .dashboard-nav { align-items: flex-start; }
-  .dashboard-tabs { gap: 6px; }
+  .dashboard-tabs { gap: 8px; }
   .dashboard-tabs .dashboard-tab,
   .dashboard-nav .privacy-tab { padding: 8px 11px; font-size: 14px; }
 }

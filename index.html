@@ -106,22 +106,21 @@
           <h2>Your Dashboard</h2>
           <p id="welcome-message"></p>
           <hr>
-          <h3>Account Settings</h3>
-          <p>Manage your account details and keep your password safe.</p>
         </section>
         <section class="dashboard-panel hidden" id="info-panel" role="tabpanel" aria-labelledby="info-tab">
           <h2>Info</h2>
-          <p>Welcome to our platform. Please use your account responsibly and keep your sign-in details secure.</p>
-          <h3>Terms of Service</h3>
-          <p>Do not use this service for illegal activity or to harm other users. Continued use means you agree to follow these terms.</p>
+          <details class="account-settings">
+            <summary>Account Settings</summary>
+            <p>Manage your account details and keep your password safe.</p>
+          </details>
         </section>
-        <section class="dashboard-panel hidden" id="about-panel" role="tabpanel" aria-labelledby="about-tab">
-          <h2>About</h2>
-          <p>This is your account dashboard, where you can find helpful information and manage your account.</p>
-        </section>
+        <section class="dashboard-panel hidden" id="about-panel" role="tabpanel" aria-labelledby="about-tab"></section>
         <section class="dashboard-panel hidden" id="privacy-panel" role="tabpanel" aria-labelledby="privacy-tab">
           <h2>Privacy</h2>
           <p>Your account information is used to provide this service. Keep your password private and contact the site owner with questions about your data.</p>
+          <p>Welcome to our platform. Please use your account responsibly and keep your sign-in details secure.</p>
+          <h3>Terms of Service</h3>
+          <p>Do not use this service for illegal activity or to harm other users. Continued use means you agree to follow these terms.</p>
         </section>
       </div>
       <button id="logout-btn" style="margin-top: 10px;">Log Out</button>

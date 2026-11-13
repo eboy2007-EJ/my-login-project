@@ -197,6 +197,22 @@ a:hover { text-decoration: underline; color: #e91e63; }
 .dashboard-panel h3 { color: #4facfe; margin: 18px 0 10px; font-size: 18px; text-align: left; }
 .dashboard-panel p { color: #ccc; text-align: left; font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
 .dashboard-panel hr { border-color: #4facfe; margin: 18px 0; }
+.account-settings {
+  border-bottom: 1px solid #4a5b8c;
+  padding: 12px 0;
+}
+
+.account-settings summary {
+  color: #4facfe;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.account-settings p {
+  margin: 12px 0 0;
+}
+
 #welcome-message { text-align: center; }
 
 /* Cool Scrollbar */

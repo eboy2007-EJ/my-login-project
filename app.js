@@ -4,16 +4,43 @@ const dashboardBox = document.getElementById('dashboard-box');
 const forgotBox = document.getElementById('forgot-box');
 const resetBox = document.getElementById('reset-box');
 const welcomeMessage = document.getElementById('welcome-message');
+const mainContainer = document.querySelector('.container');
 let passwordResetEmail = '';
 
 // Helper to hide ALL boxes
 function hideAll() {
+  mainContainer.classList.remove('dashboard-active');
   registerBox.classList.add('hidden');
   loginBox.classList.add('hidden');
   dashboardBox.classList.add('hidden');
   if (forgotBox) forgotBox.classList.add('hidden');
   if (resetBox) resetBox.classList.add('hidden');
 }
+
+function showDashboard(message) {
+  hideAll();
+  mainContainer.classList.add('dashboard-active');
+  dashboardBox.classList.remove('hidden');
+  welcomeMessage.innerText = message;
+  activateDashboardPanel('home-panel');
+}
+
+function activateDashboardPanel(panelId) {
+  document.querySelectorAll('.dashboard-tabs .dashboard-tab').forEach((tab) => {
+    const isActive = tab.dataset.panel === panelId;
+    tab.classList.toggle('active', isActive);
+    tab.setAttribute('aria-selected', String(isActive));
+  });
+  document.getElementById('privacy-tab').setAttribute('aria-pressed', String(panelId === 'privacy-panel'));
+  document.querySelectorAll('.dashboard-panel').forEach((panel) => {
+    panel.classList.toggle('hidden', panel.id !== panelId);
+  });
+}
+
+document.querySelector('.dashboard-nav').addEventListener('click', (event) => {
+  const tab = event.target.closest('[data-panel]');
+  if (tab) activateDashboardPanel(tab.dataset.panel);
+});
 
 // Navigation Links
 document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); hideAll(); loginBox.classList.remove('hidden'); });
@@ -124,9 +151,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
     const data = await response.json();
     
     if (response.ok) {
-      hideAll(); 
-      dashboardBox.classList.remove('hidden'); 
-      welcomeMessage.innerText = `You have successfully registered as ${email}.`;
+      showDashboard(`You have successfully registered as ${email}.`);
     } else {
       alert("Error: " + data.error);
     }
@@ -152,9 +177,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const data = await response.json();
     
     if (response.ok) {
-      hideAll(); 
-      dashboardBox.classList.remove('hidden'); 
-      welcomeMessage.innerText = `Welcome back, ${email}!`;
+      showDashboard(`Welcome back, ${email}!`);
     } else {
       alert("Error: " + data.error);
     }

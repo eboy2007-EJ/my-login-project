@@ -93,19 +93,36 @@
 
     <!-- Success/Dashboard box (Hidden by default) -->
     <div class="form-box hidden" id="dashboard-box">
-      <div class="scroll-content">
-        <h2 style="color: #4facfe; margin-bottom: 10px;">Your Dashboard</h2>
-        <p id="welcome-message" style="font-size: 16px; margin-bottom: 20px; color: #00ffcc;"></p>
-        <hr style="border-color: #4facfe; margin-bottom: 20px;">
-        <h3>Account Settings</h3>
-        <p>Here you can manage your account. You can change your password, update your email, or delete your account.</p>
-        <hr style="border-color: #4facfe; margin: 20px 0;">
-        <h3>Terms of Service & Privacy</h3>
-        <p>Welcome to our platform. By using this service, you agree to the following terms and conditions.</p>
-        <p>1. <strong>Privacy:</strong> We do not share your personal data with third parties.</p>
-        <p>2. <strong>Usage:</strong> You agree not to use this platform for any illegal activities.</p>
-        <p>3. <strong>Security:</strong> You are responsible for keeping your password safe.</p>
-        <p>Thank you for being part of our community!</p>
+      <nav class="dashboard-nav" aria-label="Dashboard navigation">
+        <div class="dashboard-tabs" role="tablist" aria-label="Dashboard pages">
+          <button class="dashboard-tab active" id="home-tab" type="button" role="tab" aria-selected="true" aria-controls="home-panel" data-panel="home-panel">Home</button>
+          <button class="dashboard-tab" id="info-tab" type="button" role="tab" aria-selected="false" aria-controls="info-panel" data-panel="info-panel">Info</button>
+          <button class="dashboard-tab" id="about-tab" type="button" role="tab" aria-selected="false" aria-controls="about-panel" data-panel="about-panel">About</button>
+        </div>
+        <button class="privacy-tab" id="privacy-tab" type="button" aria-pressed="false" aria-controls="privacy-panel" data-panel="privacy-panel">Privacy</button>
+      </nav>
+      <div class="dashboard-content">
+        <section class="dashboard-panel" id="home-panel" role="tabpanel" aria-labelledby="home-tab">
+          <h2>Your Dashboard</h2>
+          <p id="welcome-message"></p>
+          <hr>
+          <h3>Account Settings</h3>
+          <p>Manage your account details and keep your password safe.</p>
+        </section>
+        <section class="dashboard-panel hidden" id="info-panel" role="tabpanel" aria-labelledby="info-tab">
+          <h2>Info</h2>
+          <p>Welcome to our platform. Please use your account responsibly and keep your sign-in details secure.</p>
+          <h3>Terms of Service</h3>
+          <p>Do not use this service for illegal activity or to harm other users. Continued use means you agree to follow these terms.</p>
+        </section>
+        <section class="dashboard-panel hidden" id="about-panel" role="tabpanel" aria-labelledby="about-tab">
+          <h2>About</h2>
+          <p>This is your account dashboard, where you can find helpful information and manage your account.</p>
+        </section>
+        <section class="dashboard-panel hidden" id="privacy-panel" role="tabpanel" aria-labelledby="privacy-tab">
+          <h2>Privacy</h2>
+          <p>Your account information is used to provide this service. Keep your password private and contact the site owner with questions about your data.</p>
+        </section>
       </div>
       <button id="logout-btn" style="margin-top: 10px;">Log Out</button>
     </div>

@@ -140,21 +140,78 @@ a:hover { text-decoration: underline; color: #e91e63; }
   flex-direction: column;
 }
 
-.scroll-content {
+.container.dashboard-active {
+  max-width: 760px;
+}
+
+.dashboard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dashboard-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dashboard-tabs .dashboard-tab,
+.dashboard-nav .privacy-tab {
+  width: auto;
+  padding: 9px 16px;
+  font-size: 15px;
+}
+
+.dashboard-tabs .dashboard-tab.active {
+  background: linear-gradient(90deg, #0056b3, #7b2cbf);
+}
+
+.dashboard-nav .privacy-tab {
+  flex-shrink: 0;
+  background: #fff;
+  color: #b00020;
+  border: 1px solid #d32f2f;
+}
+
+.dashboard-nav .privacy-tab:hover {
+  background: #fff5f5;
+  color: #8b0018;
+}
+
+.dashboard-content {
   flex: 1;
   overflow-y: auto;
   padding-right: 10px;
   margin-bottom: 15px;
 }
 
-.scroll-content h3 { color: #4facfe; margin-bottom: 10px; font-size: 18px; text-align: left; }
-.scroll-content p { color: #ccc; text-align: left; font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
+.dashboard-panel h2 {
+  color: #4facfe;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.dashboard-panel h3 { color: #4facfe; margin: 18px 0 10px; font-size: 18px; text-align: left; }
+.dashboard-panel p { color: #ccc; text-align: left; font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
+.dashboard-panel hr { border-color: #4facfe; margin: 18px 0; }
+#welcome-message { text-align: center; }
 
 /* Cool Scrollbar */
-.scroll-content::-webkit-scrollbar { width: 8px; }
-.scroll-content::-webkit-scrollbar-track { background: #0d1b3e; border-radius: 10px; }
-.scroll-content::-webkit-scrollbar-thumb { background: #4facfe; border-radius: 10px; }
-.scroll-content::-webkit-scrollbar-thumb:hover { background: #007bff; }
+.dashboard-content::-webkit-scrollbar { width: 8px; }
+.dashboard-content::-webkit-scrollbar-track { background: #0d1b3e; border-radius: 10px; }
+.dashboard-content::-webkit-scrollbar-thumb { background: #4facfe; border-radius: 10px; }
+.dashboard-content::-webkit-scrollbar-thumb:hover { background: #007bff; }
+
+@media (max-width: 600px) {
+  .container.dashboard-active { padding: 24px; }
+  .dashboard-nav { align-items: flex-start; }
+  .dashboard-tabs { gap: 6px; }
+  .dashboard-tabs .dashboard-tab,
+  .dashboard-nav .privacy-tab { padding: 8px 11px; font-size: 14px; }
+}
 
 /* --- SHOW PASSWORD CHECKBOX --- */
 .show-password-container {

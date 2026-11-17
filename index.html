@@ -113,27 +113,18 @@
       </nav>
       <div class="dashboard-content">
         <section class="dashboard-panel" id="home-panel" role="tabpanel" aria-labelledby="home-tab">
-          <div class="dashboard-welcome">
-            <p class="dashboard-eyebrow">RISEN LOGINS</p>
-            <h2>Account overview</h2>
-            <p>Signed in as <strong class="highlight" id="dashboard-account-email">your account</strong>.</p>
-          </div>
           <div class="dashboard-grid">
             <article class="dashboard-card">
-              <span class="dashboard-card-label">ACCOUNT ACCESS</span>
-              <h3>Ready to use</h3>
+              <button class="dashboard-card-label dashboard-link" type="button" data-panel="info-panel" data-details="Account details">ACCOUNT ACCESS</button>
               <p>Your account is set up for email and password sign-in.</p>
             </article>
             <article class="dashboard-card">
-              <span class="dashboard-card-label">PASSWORD RECOVERY</span>
-              <h3>Six-digit email code</h3>
+              <button class="dashboard-card-label dashboard-link" type="button" data-panel="info-panel" data-details="Password &amp; recovery">PASSWORD RECOVERY</button>
               <p>Recovery codes expire after <strong class="highlight">10 minutes</strong> and allow up to <strong class="highlight">5 attempts</strong>.</p>
             </article>
             <article class="dashboard-card dashboard-card-action">
-              <span class="dashboard-card-label">ACCOUNT INFORMATION</span>
-              <h3>Review your settings</h3>
+              <button class="dashboard-card-label dashboard-link" type="button" data-panel="info-panel" data-details="Account details">ACCOUNT INFORMATION</button>
               <p>See your registered email and learn how password recovery works.</p>
-              <button class="dashboard-action" type="button" data-panel="info-panel">View account info</button>
             </article>
           </div>
         </section>
@@ -159,24 +150,14 @@
         <section class="dashboard-panel hidden" id="about-panel" role="tabpanel" aria-labelledby="about-tab">
           <p class="dashboard-eyebrow">ABOUT THE PROJECT</p>
           <h2>Simple, secure account access</h2>
-          <p class="dashboard-intro"><strong class="highlight">Risen Logins</strong> is an account portal for registration, sign-in, and password recovery.</p>
           <div class="dashboard-grid">
             <article class="dashboard-card">
               <span class="dashboard-card-label">CORE FEATURES</span>
               <ul class="dashboard-list">
-                <li><strong class="highlight">Account registration</strong> with email and password</li>
-                <li><strong class="highlight">Password sign-in</strong> with hashed password storage</li>
-                <li><strong class="highlight">Email recovery codes</strong> with expiration and attempt limits</li>
-                <li><strong class="highlight">Responsive interface</strong> for desktop and mobile</li>
+                <li><button class="dashboard-feature" type="button" data-dashboard-action="register"><strong class="highlight">Account registration</strong> with email and password</button></li>
+                <li><button class="dashboard-feature" type="button" data-dashboard-action="password-reset"><strong class="highlight">Password reset</strong> with a secure email code</button></li>
+                <li><button class="dashboard-feature" type="button" data-dashboard-action="recovery-codes"><strong class="highlight">Email recovery codes</strong> with expiration and attempt limits</button></li>
               </ul>
-            </article>
-            <article class="dashboard-card">
-              <span class="dashboard-card-label">BUILT WITH</span>
-              <p><strong class="highlight">Frontend:</strong> HTML, CSS, JavaScript</p>
-              <p><strong class="highlight">Server:</strong> Node.js and Express</p>
-              <p><strong class="highlight">Database:</strong> SQLite</p>
-              <p><strong class="highlight">Security &amp; email:</strong> bcrypt and Nodemailer</p>
-              <p class="version-label">Version 1.0.0</p>
             </article>
           </div>
         </section>

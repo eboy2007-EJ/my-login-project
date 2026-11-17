@@ -257,6 +257,27 @@ a:hover { text-decoration: underline; color: #e91e63; }
   display: block;
 }
 
+.dashboard-card .dashboard-link {
+  width: auto;
+  margin: 0 0 8px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #83caff !important;
+  text-align: left;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  cursor: pointer;
+}
+
+.dashboard-card .dashboard-link:hover {
+  background: transparent;
+  color: #fff !important;
+  text-decoration: underline;
+  transform: none;
+}
+
 .dashboard-card-action {
   display: flex;
   flex-direction: column;
@@ -279,6 +300,26 @@ a:hover { text-decoration: underline; color: #e91e63; }
 
 .dashboard-list li + li {
   margin-top: 6px;
+}
+
+.dashboard-feature {
+  width: auto;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #ccc;
+  text-align: left;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: inherit;
+}
+
+.dashboard-feature:hover {
+  background: transparent;
+  color: #fff;
+  text-decoration: underline;
+  transform: none;
 }
 
 .dashboard-card .version-label {

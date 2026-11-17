@@ -7,6 +7,7 @@ const resetBox = document.getElementById('reset-box');
 const mainContainer = document.querySelector('.container');
 let passwordResetEmail = '';
 let passwordResetCode = '';
+let currentAccountEmail = '';
 
 if (window.location.href.endsWith('/?') || window.location.href.endsWith('?')) {
   const cleanPath = window.location.pathname === '/' ? '' : window.location.pathname.replace(/\/+$/, '');
@@ -31,7 +32,7 @@ function showDashboard(email) {
   hideAll();
   mainContainer.classList.add('dashboard-active');
   dashboardBox.classList.remove('hidden');
-  document.getElementById('dashboard-account-email').textContent = email;
+  currentAccountEmail = email;
   document.getElementById('account-email-display').textContent = email;
   activateDashboardPanel('home-panel');
 }
@@ -50,7 +51,14 @@ function activateDashboardPanel(panelId) {
 
 dashboardBox.addEventListener('click', (event) => {
   const tab = event.target.closest('[data-panel]');
-  if (tab) activateDashboardPanel(tab.dataset.panel);
+  if (tab) {
+    activateDashboardPanel(tab.dataset.panel);
+    if (tab.dataset.details) {
+      const details = Array.from(document.querySelectorAll(`#${tab.dataset.panel} details`))
+        .find((item) => item.querySelector('summary').textContent.trim() === tab.dataset.details);
+      if (details) details.open = true;
+    }
+  }
 });
 
 // Navigation Links
@@ -98,6 +106,42 @@ document.getElementById('logout-btn').addEventListener('click', async (event) =>
     alert(error.message || 'Failed to connect to the server.');
   } finally {
     button.disabled = false;
+  }
+});
+
+async function signOutForDashboardAction() {
+  const response = await fetch('/logout', { method: 'POST' });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Unable to sign out.');
+}
+
+function showForgotPassword() {
+  document.getElementById('forgot-email').value = currentAccountEmail;
+  hideAll();
+  forgotBox.classList.remove('hidden');
+}
+
+dashboardBox.addEventListener('click', async (event) => {
+  const feature = event.target.closest('[data-dashboard-action]');
+  if (!feature) return;
+
+  try {
+    if (feature.dataset.dashboardAction === 'register') {
+      await signOutForDashboardAction();
+      hideAll();
+      registerBox.classList.remove('hidden');
+    } else if (feature.dataset.dashboardAction === 'password-reset') {
+      await signOutForDashboardAction();
+      showForgotPassword();
+    } else if (feature.dataset.dashboardAction === 'recovery-codes') {
+      activateDashboardPanel('info-panel');
+      const recoveryDetails = Array.from(document.querySelectorAll('#info-panel details'))
+        .find((details) => details.querySelector('summary').textContent.trim() === 'Password & recovery');
+      if (recoveryDetails) recoveryDetails.open = true;
+    }
+  } catch (error) {
+    console.error('Dashboard action failed:', error);
+    alert(error.message || 'Failed to connect to the server.');
   }
 });
 

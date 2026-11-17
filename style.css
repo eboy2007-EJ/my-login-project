@@ -193,6 +193,100 @@ a:hover { text-decoration: underline; color: #e91e63; }
 .dashboard-panel h3 { color: #4facfe; margin: 18px 0 10px; font-size: 18px; text-align: left; }
 .dashboard-panel p { color: #ccc; text-align: left; font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
 .dashboard-panel hr { border-color: #4facfe; margin: 18px 0; }
+.dashboard-panel .highlight {
+  color: #9bd8ff;
+  font-weight: 700;
+}
+
+.dashboard-eyebrow,
+.dashboard-card-label {
+  color: #83caff !important;
+  font-family: Arial, sans-serif;
+  font-size: 11px !important;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+}
+
+.dashboard-panel .dashboard-eyebrow {
+  margin-bottom: 6px;
+}
+
+.dashboard-welcome {
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(79, 172, 254, 0.3);
+  border-radius: 12px;
+  background: linear-gradient(120deg, rgba(0, 123, 255, 0.17), rgba(155, 89, 182, 0.12));
+}
+
+.dashboard-welcome h2 {
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.dashboard-welcome p:last-child {
+  margin-bottom: 0;
+}
+
+.dashboard-intro {
+  margin-bottom: 18px !important;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.dashboard-card {
+  padding: 16px;
+  border: 1px solid rgba(74, 91, 140, 0.8);
+  border-radius: 12px;
+  background: rgba(8, 19, 46, 0.78);
+}
+
+.dashboard-card h3 {
+  margin: 8px 0;
+}
+
+.dashboard-card p:last-child {
+  margin-bottom: 0;
+}
+
+.dashboard-card .dashboard-card-label {
+  display: block;
+}
+
+.dashboard-card-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.dashboard-action {
+  width: auto;
+  margin-top: 8px;
+  padding: 9px 13px;
+  font-size: 14px;
+}
+
+.dashboard-list {
+  padding-left: 20px;
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.dashboard-list li + li {
+  margin-top: 6px;
+}
+
+.dashboard-card .version-label {
+  margin-top: 14px;
+  color: #9caed1;
+  font-size: 12px;
+}
+
 .account-settings {
   border-bottom: 1px solid #4a5b8c;
   padding: 12px 0;
@@ -225,6 +319,8 @@ a:hover { text-decoration: underline; color: #e91e63; }
   .dashboard-tabs { gap: 8px; }
   .dashboard-tabs .dashboard-tab,
   .dashboard-nav .privacy-tab { padding: 8px 11px; font-size: 14px; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .dashboard-welcome { padding: 15px; }
 }
 
 /* --- SHOW PASSWORD CHECKBOX --- */

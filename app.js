@@ -27,10 +27,12 @@ function hideAll() {
   if (resetBox) resetBox.classList.add('hidden');
 }
 
-function showDashboard() {
+function showDashboard(email) {
   hideAll();
   mainContainer.classList.add('dashboard-active');
   dashboardBox.classList.remove('hidden');
+  document.getElementById('dashboard-account-email').textContent = email;
+  document.getElementById('account-email-display').textContent = email;
   activateDashboardPanel('home-panel');
 }
 
@@ -46,7 +48,7 @@ function activateDashboardPanel(panelId) {
   });
 }
 
-document.querySelector('.dashboard-nav').addEventListener('click', (event) => {
+dashboardBox.addEventListener('click', (event) => {
   const tab = event.target.closest('[data-panel]');
   if (tab) activateDashboardPanel(tab.dataset.panel);
 });
@@ -211,7 +213,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
     const data = await response.json();
     
     if (response.ok) {
-      showDashboard();
+      showDashboard(email);
     } else {
       alert("Error: " + data.error);
     }
@@ -237,7 +239,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const data = await response.json();
     
     if (response.ok) {
-      showDashboard();
+      showDashboard(email);
     } else {
       alert("Error: " + data.error);
     }

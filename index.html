@@ -113,22 +113,91 @@
       </nav>
       <div class="dashboard-content">
         <section class="dashboard-panel" id="home-panel" role="tabpanel" aria-labelledby="home-tab">
-          <h2>Dashboard</h2>
+          <div class="dashboard-welcome">
+            <p class="dashboard-eyebrow">RISEN LOGINS</p>
+            <h2>Account overview</h2>
+            <p>Signed in as <strong class="highlight" id="dashboard-account-email">your account</strong>.</p>
+          </div>
+          <div class="dashboard-grid">
+            <article class="dashboard-card">
+              <span class="dashboard-card-label">ACCOUNT ACCESS</span>
+              <h3>Ready to use</h3>
+              <p>Your account is set up for email and password sign-in.</p>
+            </article>
+            <article class="dashboard-card">
+              <span class="dashboard-card-label">PASSWORD RECOVERY</span>
+              <h3>Six-digit email code</h3>
+              <p>Recovery codes expire after <strong class="highlight">10 minutes</strong> and allow up to <strong class="highlight">5 attempts</strong>.</p>
+            </article>
+            <article class="dashboard-card dashboard-card-action">
+              <span class="dashboard-card-label">ACCOUNT INFORMATION</span>
+              <h3>Review your settings</h3>
+              <p>See your registered email and learn how password recovery works.</p>
+              <button class="dashboard-action" type="button" data-panel="info-panel">View account info</button>
+            </article>
+          </div>
         </section>
         <section class="dashboard-panel hidden" id="info-panel" role="tabpanel" aria-labelledby="info-tab">
-          <h2>Info</h2>
+          <p class="dashboard-eyebrow">YOUR ACCOUNT</p>
+          <h2>Information &amp; settings</h2>
+          <p class="dashboard-intro">Review the account details and security features available in this version.</p>
           <details class="account-settings">
-            <summary>Account Settings</summary>
-            <p>Manage your account details and keep your password safe.</p>
+            <summary>Account details</summary>
+            <p>Registered email: <strong class="highlight" id="account-email-display">your account</strong></p>
+            <p>Email and profile editing are not available in this version.</p>
+          </details>
+          <details class="account-settings">
+            <summary>Password &amp; recovery</summary>
+            <p>Your password is stored as a <strong class="highlight">bcrypt hash</strong> and is never shown in your account.</p>
+            <p>If you forget it, sign out and choose <strong class="highlight">Forgot Password</strong> on the login screen. Reset codes expire after 10 minutes.</p>
+          </details>
+          <details class="account-settings">
+            <summary>Security tips</summary>
+            <p>Choose a unique password and do not share your sign-in details. Never share a password-reset code with anyone.</p>
           </details>
         </section>
-        <section class="dashboard-panel hidden" id="about-panel" role="tabpanel" aria-labelledby="about-tab"></section>
+        <section class="dashboard-panel hidden" id="about-panel" role="tabpanel" aria-labelledby="about-tab">
+          <p class="dashboard-eyebrow">ABOUT THE PROJECT</p>
+          <h2>Simple, secure account access</h2>
+          <p class="dashboard-intro"><strong class="highlight">Risen Logins</strong> is an account portal for registration, sign-in, and password recovery.</p>
+          <div class="dashboard-grid">
+            <article class="dashboard-card">
+              <span class="dashboard-card-label">CORE FEATURES</span>
+              <ul class="dashboard-list">
+                <li><strong class="highlight">Account registration</strong> with email and password</li>
+                <li><strong class="highlight">Password sign-in</strong> with hashed password storage</li>
+                <li><strong class="highlight">Email recovery codes</strong> with expiration and attempt limits</li>
+                <li><strong class="highlight">Responsive interface</strong> for desktop and mobile</li>
+              </ul>
+            </article>
+            <article class="dashboard-card">
+              <span class="dashboard-card-label">BUILT WITH</span>
+              <p><strong class="highlight">Frontend:</strong> HTML, CSS, JavaScript</p>
+              <p><strong class="highlight">Server:</strong> Node.js and Express</p>
+              <p><strong class="highlight">Database:</strong> SQLite</p>
+              <p><strong class="highlight">Security &amp; email:</strong> bcrypt and Nodemailer</p>
+              <p class="version-label">Version 1.0.0</p>
+            </article>
+          </div>
+        </section>
         <section class="dashboard-panel hidden" id="privacy-panel" role="tabpanel" aria-labelledby="privacy-tab">
-          <h2>Privacy</h2>
-          <p>Your account information is used to provide this service. Keep your password private and contact the site owner with questions about your data.</p>
-          <p>Welcome to our platform. Please use your account responsibly and keep your sign-in details secure.</p>
-          <h3>Terms of Service</h3>
-          <p>Do not use this service for illegal activity or to harm other users. Continued use means you agree to follow these terms.</p>
+          <p class="dashboard-eyebrow">YOUR DATA</p>
+          <h2>Privacy &amp; responsible use</h2>
+          <p class="dashboard-intro">This project uses account information to provide sign-in and password-recovery features.</p>
+          <details class="account-settings">
+            <summary>Information stored</summary>
+            <p>The app stores your <strong class="highlight">email address</strong> and a <strong class="highlight">bcrypt hash</strong> of your password. For password recovery, it also stores a hash of the reset code, its expiration time, and the number of attempts.</p>
+          </details>
+          <details class="account-settings">
+            <summary>How information is used</summary>
+            <p>Your email and password are used to register and sign in. Your email is also used to deliver a password-reset code through the email service configured for the site.</p>
+          </details>
+          <details class="account-settings">
+            <summary>Account controls</summary>
+            <p>This version does not yet support changing your registered email or deleting your account from the dashboard.</p>
+          </details>
+          <h3>Responsible use</h3>
+          <p>Use only accounts you are authorized to access, keep your password private, and do not share password-reset codes. This project is a demonstration and may not meet every production or legal requirement.</p>
         </section>
       </div>
       <button id="logout-btn" style="margin-top: 10px;">Log Out</button>

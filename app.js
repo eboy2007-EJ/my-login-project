@@ -136,7 +136,7 @@ dashboardBox.addEventListener('click', async (event) => {
     } else if (feature.dataset.dashboardAction === 'recovery-codes') {
       activateDashboardPanel('info-panel');
       const recoveryDetails = Array.from(document.querySelectorAll('#info-panel details'))
-        .find((details) => details.querySelector('summary').textContent.trim() === 'Password & recovery');
+        .find((details) => details.querySelector('summary').textContent.trim() === 'Password and security');
       if (recoveryDetails) recoveryDetails.open = true;
     }
   } catch (error) {

@@ -7,7 +7,7 @@
 
 /* Background & Bubbles */
 body {
-  background: linear-gradient(135deg, #0b1021, #1a0b2e); 
+  background: linear-gradient(135deg, rgba(11, 16, 33, 0.62), rgba(26, 11, 46, 0.7)), url("background.jpg") center / cover no-repeat fixed;
   display: flex;
   justify-content: center;
   align-items: center;

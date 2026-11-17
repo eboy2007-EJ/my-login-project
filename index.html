@@ -79,12 +79,22 @@
       <p><a href="#" id="back-to-login">Back to Login</a></p>
     </div>
 
-    <!-- Reset Code Form (Hidden) -->
+    <!-- Reset Code Confirmation (Hidden) -->
+    <div class="form-box hidden" id="confirm-code-box">
+      <h2>Confirm Code</h2>
+      <p id="confirm-code-status" style="margin-bottom: 15px; font-size: 14px;">Enter the 6-digit code sent to your email.</p>
+      <form id="confirm-code-form">
+        <input type="text" id="confirm-code" placeholder="6-digit code" required maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code">
+        <button type="submit" id="confirm-code-button">Confirm Code</button>
+      </form>
+      <p style="margin-top: 10px;"><a href="#" id="back-to-login-from-confirm">Back to Login</a></p>
+    </div>
+
+    <!-- New Password Form (Hidden) -->
     <div class="form-box hidden" id="reset-box">
-      <h2>Enter Code</h2>
-      <p style="margin-bottom: 15px; font-size: 14px;">If an account exists for that email, a code will arrive shortly.</p>
+      <h2>Choose a New Password</h2>
+      <p style="margin-bottom: 15px; font-size: 14px;">Your code was confirmed. Enter a new password.</p>
       <form id="reset-form">
-        <input type="text" id="reset-code" placeholder="6-digit code" required maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code">
         <input type="password" id="new-password" placeholder="New Password (at least 8 characters)" required minlength="8" autocomplete="new-password">
         <button type="submit">Update Password</button>
       </form>

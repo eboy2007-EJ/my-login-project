@@ -2,9 +2,11 @@ const registerBox = document.getElementById('register-box');
 const loginBox = document.getElementById('login-box');
 const dashboardBox = document.getElementById('dashboard-box');
 const forgotBox = document.getElementById('forgot-box');
+const confirmCodeBox = document.getElementById('confirm-code-box');
 const resetBox = document.getElementById('reset-box');
 const mainContainer = document.querySelector('.container');
 let passwordResetEmail = '';
+let passwordResetCode = '';
 
 if (window.location.href.endsWith('/?') || window.location.href.endsWith('?')) {
   const cleanPath = window.location.pathname === '/' ? '' : window.location.pathname.replace(/\/+$/, '');
@@ -21,6 +23,7 @@ function hideAll() {
   loginBox.classList.add('hidden');
   dashboardBox.classList.add('hidden');
   if (forgotBox) forgotBox.classList.add('hidden');
+  if (confirmCodeBox) confirmCodeBox.classList.add('hidden');
   if (resetBox) resetBox.classList.add('hidden');
 }
 
@@ -63,6 +66,13 @@ if (showForgot) showForgot.addEventListener('click', (e) => {
 const backToLogin = document.getElementById('back-to-login');
 if (backToLogin) backToLogin.addEventListener('click', (e) => { e.preventDefault(); hideAll(); loginBox.classList.remove('hidden'); });
 
+const backToLoginFromConfirm = document.getElementById('back-to-login-from-confirm');
+if (backToLoginFromConfirm) backToLoginFromConfirm.addEventListener('click', (e) => {
+  e.preventDefault();
+  hideAll();
+  loginBox.classList.remove('hidden');
+});
+
 const backToLoginFromReset = document.getElementById('back-to-login-from-reset');
 if (backToLoginFromReset) backToLoginFromReset.addEventListener('click', (e) => {
   e.preventDefault();
@@ -88,7 +98,18 @@ document.getElementById('forgot-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('forgot-email').value.trim();
   const submitButton = e.currentTarget.querySelector('button[type="submit"]');
+  const confirmCodeStatus = document.getElementById('confirm-code-status');
+  const confirmCodeButton = document.getElementById('confirm-code-button');
+  const revealConfirmation = () => {
+    hideAll();
+    confirmCodeBox.classList.remove('hidden');
+  };
+  passwordResetEmail = email;
+  passwordResetCode = '';
+  confirmCodeStatus.textContent = 'Requesting your code...';
+  confirmCodeButton.disabled = true;
   submitButton.disabled = true;
+  const revealTimer = window.setTimeout(revealConfirmation, 2000);
 
   try {
     const response = await fetch('/forgot-password', {
@@ -99,11 +120,43 @@ document.getElementById('forgot-form').addEventListener('submit', async (e) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Unable to request a reset code.');
 
-    passwordResetEmail = email;
+    confirmCodeStatus.textContent = 'If an account exists for that email, a code has been sent.';
+    confirmCodeButton.disabled = false;
+    revealConfirmation();
+  } catch (error) {
+    window.clearTimeout(revealTimer);
+    hideAll();
+    forgotBox.classList.remove('hidden');
+    console.error('Password reset request failed:', error);
+    alert(error.message || 'Failed to connect to the server.');
+  } finally {
+    window.clearTimeout(revealTimer);
+    submitButton.disabled = false;
+  }
+});
+
+document.getElementById('confirm-code-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const code = document.getElementById('confirm-code').value.trim();
+  const submitButton = document.getElementById('confirm-code-button');
+  submitButton.disabled = true;
+
+  try {
+    const response = await fetch('/verify-reset-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: passwordResetEmail, code })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(response.status === 400 ? 'Code incorrect.' : data.error || 'Unable to verify the code.');
+    }
+
+    passwordResetCode = code;
     hideAll();
     resetBox.classList.remove('hidden');
   } catch (error) {
-    console.error('Password reset request failed:', error);
+    console.error('Reset code verification failed:', error);
     alert(error.message || 'Failed to connect to the server.');
   } finally {
     submitButton.disabled = false;
@@ -112,7 +165,6 @@ document.getElementById('forgot-form').addEventListener('submit', async (e) => {
 
 document.getElementById('reset-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const code = document.getElementById('reset-code').value.trim();
   const newPassword = document.getElementById('new-password').value;
   const submitButton = e.currentTarget.querySelector('button[type="submit"]');
   submitButton.disabled = true;
@@ -121,7 +173,7 @@ document.getElementById('reset-form').addEventListener('submit', async (e) => {
     const response = await fetch('/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: passwordResetEmail, code, newPassword })
+      body: JSON.stringify({ email: passwordResetEmail, code: passwordResetCode, newPassword })
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Unable to reset the password.');
@@ -130,8 +182,10 @@ document.getElementById('reset-form').addEventListener('submit', async (e) => {
     loginBox.classList.remove('hidden');
     document.getElementById('login-email').value = passwordResetEmail;
     document.getElementById('login-password').value = '';
-    document.getElementById('reset-code').value = '';
+    document.getElementById('confirm-code').value = '';
     document.getElementById('new-password').value = '';
+    passwordResetEmail = '';
+    passwordResetCode = '';
     alert(data.message);
   } catch (error) {
     console.error('Password reset failed:', error);

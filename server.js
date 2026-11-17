@@ -188,6 +188,59 @@ app.post('/forgot-password', async (req, res) => {
     });
 });
 
+app.post('/verify-reset-code', (req, res) => {
+    const body = req.body || {};
+    const email = typeof body.email === 'string' ? body.email.trim() : '';
+    const code = typeof body.code === 'string' ? body.code.trim() : '';
+
+    if (!email || email.length > 254 || !/^\d{6}$/.test(code)) {
+        return res.status(400).json({ error: 'Code incorrect.' });
+    }
+
+    db.get(
+        `SELECT id, password_reset_hash, password_reset_expires_at, password_reset_attempts
+         FROM users WHERE LOWER(email) = LOWER(?)`,
+        [email],
+        async (findError, user) => {
+            if (findError) {
+                console.error('Could not look up password reset code:', findError);
+                return res.status(500).json({ error: 'Unable to verify the code.' });
+            }
+            if (!user || !user.password_reset_hash ||
+                user.password_reset_expires_at <= Date.now() ||
+                user.password_reset_attempts >= RESET_CODE_MAX_ATTEMPTS) {
+                return res.status(400).json({ error: 'Code incorrect.' });
+            }
+
+            try {
+                const matches = await bcrypt.compare(code, user.password_reset_hash);
+                if (!matches) {
+                    db.run(
+                        `UPDATE users SET password_reset_attempts = password_reset_attempts + 1
+                         WHERE id = ? AND password_reset_hash = ?
+                           AND password_reset_expires_at > ?
+                           AND password_reset_attempts < ?`,
+                        [user.id, user.password_reset_hash, Date.now(), RESET_CODE_MAX_ATTEMPTS],
+                        (attemptError) => {
+                            if (attemptError) {
+                                console.error('Could not record password reset attempt:', attemptError);
+                                return res.status(500).json({ error: 'Unable to verify the code.' });
+                            }
+                            return res.status(400).json({ error: 'Code incorrect.' });
+                        }
+                    );
+                    return;
+                }
+
+                return res.json({ message: 'Reset code confirmed.' });
+            } catch (error) {
+                console.error('Could not verify password reset code:', error);
+                return res.status(500).json({ error: 'Unable to verify the code.' });
+            }
+        }
+    );
+});
+
 app.post('/reset-password', async (req, res) => {
     const body = req.body || {};
     const email = typeof body.email === 'string' ? body.email.trim() : '';

@@ -82,7 +82,24 @@ if (backToLoginFromReset) backToLoginFromReset.addEventListener('click', (e) => 
   loginBox.classList.remove('hidden');
 });
 
-document.getElementById('logout-btn').addEventListener('click', () => { hideAll(); loginBox.classList.remove('hidden'); });
+document.getElementById('logout-btn').addEventListener('click', async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+
+  try {
+    const response = await fetch('/logout', { method: 'POST' });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to sign out.');
+
+    hideAll();
+    loginBox.classList.remove('hidden');
+  } catch (error) {
+    console.error('Sign-out failed:', error);
+    alert(error.message || 'Failed to connect to the server.');
+  } finally {
+    button.disabled = false;
+  }
+});
 
 function setupPasswordVisibility(checkboxId, passwordInputId) {
   const checkbox = document.getElementById(checkboxId);
@@ -213,7 +230,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
     const data = await response.json();
     
     if (response.ok) {
-      showDashboard(email);
+      showDashboard(data.email);
     } else {
       alert("Error: " + data.error);
     }
@@ -239,7 +256,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const data = await response.json();
     
     if (response.ok) {
-      showDashboard(email);
+      showDashboard(data.email);
     } else {
       alert("Error: " + data.error);
     }
@@ -248,3 +265,18 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     alert("Failed to connect to the server. Is server.js running?");
   }
 });
+
+async function restoreDashboardSession() {
+  try {
+    const response = await fetch('/me');
+    if (response.status === 401) return;
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to restore your sign-in.');
+
+    showDashboard(data.email);
+  } catch (error) {
+    console.error('Could not restore sign-in:', error);
+  }
+}
+
+restoreDashboardSession();

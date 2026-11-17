@@ -6,6 +6,14 @@ const resetBox = document.getElementById('reset-box');
 const mainContainer = document.querySelector('.container');
 let passwordResetEmail = '';
 
+if (window.location.href.endsWith('/?') || window.location.href.endsWith('?')) {
+  const cleanPath = window.location.pathname === '/' ? '' : window.location.pathname.replace(/\/+$/, '');
+  const cleanUrl = `${window.location.origin}${cleanPath}`;
+  if (window.location.href !== cleanUrl) {
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+}
+
 // Helper to hide ALL boxes
 function hideAll() {
   mainContainer.classList.remove('dashboard-active');

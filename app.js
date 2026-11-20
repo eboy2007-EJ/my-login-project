@@ -422,7 +422,9 @@ document.getElementById('two-step-disable-form').addEventListener('submit', asyn
 
 document.querySelectorAll('[data-google-signin]').forEach((button) => {
   button.addEventListener('click', () => {
-    window.location.assign('/auth/google');
+    const email = document.getElementById('reg-email').value.trim();
+    const loginHint = email ? `?login_hint=${encodeURIComponent(email)}` : '';
+    window.location.assign(`/auth/google${loginHint}`);
   });
 });
 
@@ -430,11 +432,18 @@ fetch('/auth/google/config')
   .then(async (response) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Unable to load Google sign-in settings.');
-    document.querySelectorAll('[data-google-signin]').forEach((button) => {
-      button.classList.toggle('hidden', !data.enabled);
+    document.querySelectorAll('[data-google-signin-status]').forEach((status) => {
+      status.textContent = 'Google sign-in is visible, but the site owner still needs to configure Google OAuth.';
+      status.classList.toggle('hidden', data.enabled);
     });
   })
-  .catch((error) => console.error('Could not load Google sign-in settings:', error));
+  .catch((error) => {
+    console.error('Could not load Google sign-in settings:', error);
+    document.querySelectorAll('[data-google-signin-status]').forEach((status) => {
+      status.textContent = 'Google sign-in settings could not be checked. Try again later.';
+      status.classList.remove('hidden');
+    });
+  });
 
 const authNotice = new URLSearchParams(window.location.search).get('authNotice');
 if (authNotice) {

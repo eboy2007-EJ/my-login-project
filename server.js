@@ -483,6 +483,8 @@ app.get('/auth/google', (req, res) => {
         state,
         nonce
     }).toString();
+    const loginHint = normalizeEmail(req.query.login_hint);
+    if (loginHint) authorizationUrl.searchParams.set('login_hint', loginHint.email);
     return res.redirect(authorizationUrl.toString());
 });
 

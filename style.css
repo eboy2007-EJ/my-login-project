@@ -513,6 +513,10 @@ body.dashboard-open {
 }
 
 .google-signin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin-top: 12px;
   background: #fff;
   color: #242424;
@@ -521,6 +525,20 @@ body.dashboard-open {
 .google-signin:hover {
   background: #f0f0f0;
   color: #111;
+}
+
+.google-mark {
+  color: #4285f4;
+  font-family: Arial, sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.google-signin-status {
+  margin-top: 8px;
+  color: #a0aec0 !important;
+  font-family: Arial, sans-serif;
+  font-size: 12px !important;
 }
 
 .security-action {

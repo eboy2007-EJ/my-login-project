@@ -53,7 +53,7 @@ Reset codes expire after 10 minutes, can be attempted at most five times, and ca
 
 ## Google sign-in and email two-step verification
 
-Google sign-in is enabled only when all three Google OAuth variables are configured. Create an OAuth 2.0 Web application client in Google Cloud Console, add the deployed callback URL as an authorized redirect URI, and use the exact same URL in `GOOGLE_REDIRECT_URI`. Google sign-in accepts verified Google email addresses and creates or links an account with the matching email.
+Google sign-in is enabled only when all three Google OAuth variables are configured. Create an OAuth 2.0 Web application client in Google Cloud Console, add the deployed callback URL as an authorized redirect URI, and use the exact same URL in `GOOGLE_REDIRECT_URI`. The email entered in the Create an Account form can preselect a Google account, but it does not authenticate the user; the user must still complete Google's sign-in, and the app accepts only verified Google email addresses. Google sign-in creates or links an account with the matching verified email.
 
 Google sign-in verifies identity; it is not a backup of your application data. Back up MongoDB separately.
 

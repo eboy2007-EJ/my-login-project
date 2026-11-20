@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const path = require('path');
 const { MongoClient, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,16 @@ const APP_NAME = process.env.APP_NAME || 'Risen Logins';
 const DATABASE_URL = process.env.DATABASE_URL;
 const DATABASE_NAME = process.env.DATABASE_NAME;
 const JWT_SECRET = process.env.JWT_SECRET;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
+const googleSignInEnabled = Boolean(
+    GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET && GOOGLE_REDIRECT_URI &&
+    !GOOGLE_CLIENT_ID.startsWith('your-') &&
+    !GOOGLE_CLIENT_SECRET.startsWith('your-') &&
+    !GOOGLE_REDIRECT_URI.includes('your-domain.example')
+);
+const googleOAuth = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI);
 const AUTH_COOKIE = 'auth_token';
 const AUTH_TTL_MS = 60 * 60 * 1000;
 const RESET_CODE_TTL_MS = 10 * 60 * 1000;
@@ -32,7 +43,9 @@ let users;
 const gmailUser = process.env.GMAIL_USER;
 const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
 const supportEmail = process.env.SUPPORT_EMAIL;
-const mailer = gmailUser && gmailAppPassword
+const mailer = gmailUser && gmailAppPassword &&
+    !gmailUser.startsWith('your-') &&
+    !gmailAppPassword.startsWith('your-')
     ? nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -114,13 +127,14 @@ async function requireAuth(req, res, next) {
     try {
         const user = await getUsers().findOne(
             { _id: new ObjectId(payload.sub) },
-            { projection: { email: 1, authVersion: 1 } }
+            { projection: { email: 1, authVersion: 1, password: 1, twoFactorEnabled: 1 } }
         );
         if (!user || (user.authVersion || 0) !== (payload.ver || 0)) {
             clearAuthCookie(res);
             return res.status(401).json({ error: 'Your sign-in has expired. Please sign in again.' });
         }
         req.authenticatedEmail = user.email;
+        req.authenticatedUser = user;
         return next();
     } catch (error) {
         console.error('Could not validate sign-in:', error);
@@ -156,6 +170,7 @@ app.post('/register', async (req, res) => {
             emailLower: account.emailLower,
             password: passwordHash,
             authVersion: 0,
+            twoFactorEnabled: false,
             resetAttempts: 0,
             createdAt: new Date()
         };
@@ -163,7 +178,12 @@ app.post('/register', async (req, res) => {
         user._id = result.insertedId;
 
         setAuthCookie(res, user);
-        return res.status(201).json({ message: 'User registered successfully!', email: user.email });
+        return res.status(201).json({
+            message: 'User registered successfully!',
+            email: user.email,
+            twoStepEnabled: false,
+            hasPassword: true
+        });
     } catch (error) {
         if (error.code === 11000) return res.status(400).json({ error: 'Email already exists!' });
         console.error('Registration failed:', error);
@@ -178,12 +198,74 @@ app.post('/login', async (req, res) => {
 
     try {
         const user = await getUsers().findOne({ emailLower: account.emailLower });
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        if (!user || !user.password || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ error: 'Invalid email or password.' });
         }
 
+        if (user.twoFactorEnabled) {
+            if (!mailer) {
+                return res.status(503).json({ error: 'Email two-step verification is not configured on the server.' });
+            }
+
+            const now = Date.now();
+            if (user.loginCodeRequestedAt && user.loginCodeRequestedAt > now - RESET_REQUEST_COOLDOWN_MS) {
+                return res.status(429).json({ error: 'A sign-in code was recently sent. Check your email and try again shortly.' });
+            }
+
+            const code = String(crypto.randomInt(100000, 1000000));
+            const codeHash = await bcrypt.hash(code, 10);
+            const update = await getUsers().updateOne(
+                {
+                    _id: user._id,
+                    twoFactorEnabled: true,
+                    $or: [
+                        { loginCodeRequestedAt: { $exists: false } },
+                        { loginCodeRequestedAt: null },
+                        { loginCodeRequestedAt: { $lte: now - RESET_REQUEST_COOLDOWN_MS } }
+                    ]
+                },
+                {
+                    $set: {
+                        loginCodeHash: codeHash,
+                        loginCodeExpiresAt: now + RESET_CODE_TTL_MS,
+                        loginCodeRequestedAt: now,
+                        loginCodeAttempts: 0
+                    }
+                }
+            );
+            if (update.matchedCount !== 1) {
+                return res.status(429).json({ error: 'A sign-in code was recently sent. Check your email and try again shortly.' });
+            }
+
+            try {
+                await mailer.sendMail({
+                    from: gmailUser,
+                    to: user.email,
+                    subject: `${APP_NAME} sign-in verification code`,
+                    text: `Your sign-in verification code is ${code}. It expires in 10 minutes. If you did not try to sign in, you can ignore this email.`
+                });
+            } catch (mailError) {
+                console.error('Could not send sign-in verification email:', mailError);
+                await getUsers().updateOne(
+                    { _id: user._id, loginCodeHash: codeHash },
+                    {
+                        $unset: { loginCodeHash: '', loginCodeExpiresAt: '', loginCodeRequestedAt: '' },
+                        $set: { loginCodeAttempts: 0 }
+                    }
+                );
+                return res.status(503).json({ error: 'Could not send the sign-in code. Please try again later.' });
+            }
+
+            return res.status(202).json({ twoFactorRequired: true });
+        }
+
         setAuthCookie(res, user);
-        return res.json({ message: 'Login successful!', email: user.email });
+        return res.json({
+            message: 'Login successful!',
+            email: user.email,
+            twoStepEnabled: false,
+            hasPassword: true
+        });
     } catch (error) {
         console.error('Login failed:', error);
         return res.status(500).json({ error: 'Server error.' });
@@ -191,12 +273,360 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/me', requireAuth, (req, res) => {
-    return res.json({ email: req.authenticatedEmail });
+    return res.json({
+        email: req.authenticatedEmail,
+        twoStepEnabled: Boolean(req.authenticatedUser.twoFactorEnabled),
+        hasPassword: Boolean(req.authenticatedUser.password)
+    });
+});
+
+app.post('/security/two-step/request', requireAuth, async (req, res) => {
+    const user = req.authenticatedUser;
+    if (!user.password) {
+        return res.status(400).json({ error: 'This account uses Google sign-in. Manage its verification through Google.' });
+    }
+    if (user.twoFactorEnabled) {
+        return res.status(400).json({ error: 'Email two-step verification is already enabled.' });
+    }
+    if (!mailer) {
+        return res.status(503).json({ error: 'Email verification is not configured on the server.' });
+    }
+
+    try {
+        const now = Date.now();
+        if (user.twoStepSetupRequestedAt && user.twoStepSetupRequestedAt > now - RESET_REQUEST_COOLDOWN_MS) {
+            return res.status(429).json({ error: 'A verification code was recently sent. Check your email and try again shortly.' });
+        }
+
+        const code = String(crypto.randomInt(100000, 1000000));
+        const codeHash = await bcrypt.hash(code, 10);
+        const update = await getUsers().updateOne(
+            {
+                _id: user._id,
+                $or: [
+                    { twoStepSetupRequestedAt: { $exists: false } },
+                    { twoStepSetupRequestedAt: null },
+                    { twoStepSetupRequestedAt: { $lte: now - RESET_REQUEST_COOLDOWN_MS } }
+                ]
+            },
+            {
+                $set: {
+                    twoStepSetupCodeHash: codeHash,
+                    twoStepSetupExpiresAt: now + RESET_CODE_TTL_MS,
+                    twoStepSetupRequestedAt: now,
+                    twoStepSetupAttempts: 0
+                }
+            }
+        );
+        if (update.matchedCount !== 1) {
+            return res.status(429).json({ error: 'A verification code was recently sent. Check your email and try again shortly.' });
+        }
+
+        try {
+            await mailer.sendMail({
+                from: gmailUser,
+                to: user.email,
+                subject: `${APP_NAME} two-step verification`,
+                text: `Your email verification setup code is ${code}. It expires in 10 minutes. If you did not request this, you can ignore this email.`
+            });
+        } catch (mailError) {
+            console.error('Could not send two-step setup code:', mailError);
+            await getUsers().updateOne(
+                { _id: user._id, twoStepSetupCodeHash: codeHash },
+                {
+                    $unset: {
+                        twoStepSetupCodeHash: '',
+                        twoStepSetupExpiresAt: '',
+                        twoStepSetupRequestedAt: ''
+                    },
+                    $set: { twoStepSetupAttempts: 0 }
+                }
+            );
+            return res.status(503).json({ error: 'Could not send the verification code. Please try again later.' });
+        }
+
+        return res.json({ message: 'A verification code was sent to your registered email.' });
+    } catch (error) {
+        console.error('Could not request two-step setup code:', error);
+        return res.status(500).json({ error: 'Unable to request a verification code.' });
+    }
+});
+
+app.post('/security/two-step/confirm', requireAuth, async (req, res) => {
+    const code = typeof (req.body && req.body.code) === 'string' ? req.body.code.trim() : '';
+    if (!/^\d{6}$/.test(code)) {
+        return res.status(400).json({ error: 'The verification code is incorrect or expired.' });
+    }
+
+    try {
+        const user = await getUsers().findOne({
+            _id: req.authenticatedUser._id,
+            twoStepSetupCodeHash: { $type: 'string' },
+            twoStepSetupExpiresAt: { $gt: Date.now() },
+            twoStepSetupAttempts: { $lt: RESET_CODE_MAX_ATTEMPTS }
+        });
+        if (!user || !(await bcrypt.compare(code, user.twoStepSetupCodeHash))) {
+            if (user) {
+                await getUsers().updateOne(
+                    {
+                        _id: user._id,
+                        twoStepSetupCodeHash: user.twoStepSetupCodeHash,
+                        twoStepSetupExpiresAt: { $gt: Date.now() },
+                        twoStepSetupAttempts: { $lt: RESET_CODE_MAX_ATTEMPTS }
+                    },
+                    { $inc: { twoStepSetupAttempts: 1 } }
+                );
+            }
+            return res.status(400).json({ error: 'The verification code is incorrect or expired.' });
+        }
+
+        const update = await getUsers().updateOne(
+            {
+                _id: user._id,
+                twoStepSetupCodeHash: user.twoStepSetupCodeHash,
+                twoStepSetupExpiresAt: { $gt: Date.now() },
+                twoStepSetupAttempts: { $lt: RESET_CODE_MAX_ATTEMPTS }
+            },
+            {
+                $set: { twoFactorEnabled: true, twoStepSetupAttempts: 0 },
+                $unset: {
+                    twoStepSetupCodeHash: '',
+                    twoStepSetupExpiresAt: '',
+                    twoStepSetupRequestedAt: ''
+                }
+            }
+        );
+        if (update.matchedCount !== 1) {
+            return res.status(400).json({ error: 'The verification code is incorrect or expired.' });
+        }
+        return res.json({ message: 'Email two-step verification is enabled.' });
+    } catch (error) {
+        console.error('Could not confirm two-step setup code:', error);
+        return res.status(500).json({ error: 'Unable to enable two-step verification.' });
+    }
+});
+
+app.post('/security/two-step/disable', requireAuth, async (req, res) => {
+    const password = req.body && typeof req.body.password === 'string' ? req.body.password : '';
+    try {
+        if (!req.authenticatedUser.password ||
+            !(await bcrypt.compare(password, req.authenticatedUser.password))) {
+            return res.status(401).json({ error: 'Current password is incorrect.' });
+        }
+    } catch (error) {
+        console.error('Could not verify password to disable two-step verification:', error);
+        return res.status(500).json({ error: 'Unable to verify the current password.' });
+    }
+
+    try {
+        const update = await getUsers().updateOne(
+            { _id: req.authenticatedUser._id, twoFactorEnabled: true },
+            {
+                $set: { twoFactorEnabled: false },
+                $unset: {
+                    loginCodeHash: '',
+                    loginCodeExpiresAt: '',
+                    loginCodeRequestedAt: '',
+                    loginCodeAttempts: '',
+                    twoStepSetupCodeHash: '',
+                    twoStepSetupExpiresAt: '',
+                    twoStepSetupRequestedAt: '',
+                    twoStepSetupAttempts: ''
+                }
+            }
+        );
+        if (update.matchedCount !== 1) {
+            return res.status(400).json({ error: 'Email two-step verification is already disabled.' });
+        }
+        return res.json({ message: 'Email two-step verification is disabled.' });
+    } catch (error) {
+        console.error('Could not disable two-step verification:', error);
+        return res.status(500).json({ error: 'Unable to turn off two-step verification.' });
+    }
 });
 
 app.post('/logout', (req, res) => {
     clearAuthCookie(res);
     return res.json({ message: 'Signed out successfully.' });
+});
+
+app.get('/auth/google/config', (req, res) => {
+    return res.json({ enabled: googleSignInEnabled });
+});
+
+app.get('/auth/google', (req, res) => {
+    if (!googleSignInEnabled) return res.redirect('/?authNotice=googleUnavailable');
+
+    const state = crypto.randomBytes(32).toString('hex');
+    const nonce = crypto.randomBytes(32).toString('hex');
+    res.cookie('google_oauth_state', state, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production' || process.env.RENDER === 'true',
+        sameSite: 'lax',
+        maxAge: 5 * 60 * 1000,
+        path: '/auth/google/callback'
+    });
+    res.cookie('google_oauth_nonce', nonce, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production' || process.env.RENDER === 'true',
+        sameSite: 'lax',
+        maxAge: 5 * 60 * 1000,
+        path: '/auth/google/callback'
+    });
+
+    const authorizationUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    authorizationUrl.search = new URLSearchParams({
+        client_id: GOOGLE_CLIENT_ID,
+        redirect_uri: GOOGLE_REDIRECT_URI,
+        response_type: 'code',
+        scope: 'openid email profile',
+        state,
+        nonce
+    }).toString();
+    return res.redirect(authorizationUrl.toString());
+});
+
+app.get('/auth/google/callback', async (req, res) => {
+    const expectedState = req.cookies.google_oauth_state;
+    const expectedNonce = req.cookies.google_oauth_nonce;
+    const clearOAuthCookie = (name) => res.clearCookie(name, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production' || process.env.RENDER === 'true',
+        sameSite: 'lax',
+        path: '/auth/google/callback'
+    });
+    clearOAuthCookie('google_oauth_state');
+    clearOAuthCookie('google_oauth_nonce');
+
+    const returnedState = typeof req.query.state === 'string' ? req.query.state : '';
+    if (!googleSignInEnabled || !expectedState || !expectedNonce || !returnedState ||
+        expectedState.length !== returnedState.length ||
+        !crypto.timingSafeEqual(Buffer.from(expectedState), Buffer.from(returnedState)) ||
+        typeof req.query.code !== 'string') {
+        return res.redirect('/?authNotice=googleFailed');
+    }
+
+    try {
+        const { tokens } = await googleOAuth.getToken({
+            code: req.query.code,
+            redirect_uri: GOOGLE_REDIRECT_URI
+        });
+        if (!tokens.id_token) return res.redirect('/?authNotice=googleFailed');
+
+        const ticket = await googleOAuth.verifyIdToken({
+            idToken: tokens.id_token,
+            audience: GOOGLE_CLIENT_ID
+        });
+        const identity = ticket.getPayload();
+        if (!identity || typeof identity.sub !== 'string' ||
+            typeof identity.email !== 'string' || identity.email_verified !== true ||
+            identity.nonce !== expectedNonce) {
+            return res.redirect('/?authNotice=googleEmail');
+        }
+
+        const account = normalizeEmail(identity.email);
+        if (!account) return res.redirect('/?authNotice=googleEmail');
+
+        let user = await getUsers().findOne({ googleSub: identity.sub });
+        if (!user) {
+            user = await getUsers().findOne({ emailLower: account.emailLower });
+            if (user && user.googleSub && user.googleSub !== identity.sub) {
+                return res.redirect('/?authNotice=googleFailed');
+            }
+            if (user) {
+                const linkResult = await getUsers().updateOne(
+                    { _id: user._id, $or: [{ googleSub: { $exists: false } }, { googleSub: identity.sub }] },
+                    { $set: { googleSub: identity.sub } }
+                );
+                if (linkResult.matchedCount !== 1) {
+                    return res.redirect('/?authNotice=googleFailed');
+                }
+                user.googleSub = identity.sub;
+            } else {
+                const newUser = {
+                    email: account.email,
+                    emailLower: account.emailLower,
+                    googleSub: identity.sub,
+                    authVersion: 0,
+                    twoFactorEnabled: false,
+                    resetAttempts: 0,
+                    createdAt: new Date()
+                };
+                const result = await getUsers().insertOne(newUser);
+                newUser._id = result.insertedId;
+                user = newUser;
+            }
+        }
+
+        if (user.twoFactorEnabled) {
+            return res.redirect('/?authNotice=googleTwoStep');
+        }
+
+        setAuthCookie(res, user);
+        return res.redirect('/');
+    } catch (error) {
+        if (error.code !== 11000) console.error('Google sign-in failed:', error);
+        return res.redirect('/?authNotice=googleFailed');
+    }
+});
+
+app.post('/verify-login-code', async (req, res) => {
+    const account = normalizeEmail(req.body && req.body.email);
+    const code = typeof (req.body && req.body.code) === 'string' ? req.body.code.trim() : '';
+    if (!account || !/^\d{6}$/.test(code)) {
+        return res.status(400).json({ error: 'The verification code is incorrect or expired.' });
+    }
+
+    try {
+        const user = await getUsers().findOne({
+            emailLower: account.emailLower,
+            twoFactorEnabled: true,
+            loginCodeHash: { $type: 'string' },
+            loginCodeExpiresAt: { $gt: Date.now() },
+            loginCodeAttempts: { $lt: RESET_CODE_MAX_ATTEMPTS }
+        });
+        if (!user || !(await bcrypt.compare(code, user.loginCodeHash))) {
+            if (user) {
+                await getUsers().updateOne(
+                    {
+                        _id: user._id,
+                        loginCodeHash: user.loginCodeHash,
+                        loginCodeExpiresAt: { $gt: Date.now() },
+                        loginCodeAttempts: { $lt: RESET_CODE_MAX_ATTEMPTS }
+                    },
+                    { $inc: { loginCodeAttempts: 1 } }
+                );
+            }
+            return res.status(400).json({ error: 'The verification code is incorrect or expired.' });
+        }
+
+        const update = await getUsers().updateOne(
+            {
+                _id: user._id,
+                loginCodeHash: user.loginCodeHash,
+                loginCodeExpiresAt: { $gt: Date.now() },
+                loginCodeAttempts: { $lt: RESET_CODE_MAX_ATTEMPTS }
+            },
+            {
+                $unset: { loginCodeHash: '', loginCodeExpiresAt: '', loginCodeRequestedAt: '' },
+                $set: { loginCodeAttempts: 0 }
+            }
+        );
+        if (update.matchedCount !== 1) {
+            return res.status(400).json({ error: 'The verification code is incorrect or expired.' });
+        }
+
+        setAuthCookie(res, user);
+        return res.json({
+            message: 'Login successful!',
+            email: user.email,
+            twoStepEnabled: true,
+            hasPassword: true
+        });
+    } catch (error) {
+        console.error('Could not verify sign-in code:', error);
+        return res.status(500).json({ error: 'Unable to verify the sign-in code.' });
+    }
 });
 
 app.post('/forgot-password', async (req, res) => {
@@ -329,7 +759,13 @@ app.post('/reset-password', async (req, res) => {
                 $unset: {
                     resetCodeHash: '',
                     resetExpiresAt: '',
-                    resetRequestedAt: ''
+                    resetRequestedAt: '',
+                    loginCodeHash: '',
+                    loginCodeExpiresAt: '',
+                    loginCodeRequestedAt: '',
+                    twoStepSetupCodeHash: '',
+                    twoStepSetupExpiresAt: '',
+                    twoStepSetupRequestedAt: ''
                 }
             }
         );
@@ -351,6 +787,7 @@ async function start() {
         await client.connect();
         users = client.db(getDatabaseName()).collection('users');
         await users.createIndex({ emailLower: 1 }, { unique: true });
+        await users.createIndex({ googleSub: 1 }, { unique: true, sparse: true });
     } catch (error) {
         users = undefined;
         try {

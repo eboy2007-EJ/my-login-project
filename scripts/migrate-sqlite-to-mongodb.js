@@ -91,6 +91,7 @@ async function migrate() {
             emailLower,
             password: row.password,
             authVersion: 0,
+            twoFactorEnabled: false,
             resetAttempts: row.password_reset_attempts || 0
         };
         if (row.password_reset_hash) user.resetCodeHash = row.password_reset_hash;
@@ -104,6 +105,7 @@ async function migrate() {
         await client.connect();
         const collection = client.db(getDatabaseName()).collection('users');
         await collection.createIndex({ emailLower: 1 }, { unique: true });
+        await collection.createIndex({ googleSub: 1 }, { unique: true, sparse: true });
 
         if (documents.length === 0) {
             console.log('No SQLite accounts found. Nothing to migrate.');

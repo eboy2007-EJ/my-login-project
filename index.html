@@ -46,6 +46,7 @@
         
         <button type="submit">Sign Up</button>
       </form>
+      <button type="button" class="google-signin hidden" data-google-signin>Continue with Google</button>
       <p style="margin-top: 15px;">Already have an account? <br> <a href="#" id="show-login" class="switch-link">Login</a></p>
     </div>
 
@@ -66,6 +67,18 @@
       </form>
       <p style="margin-top: 15px;">Don't have an account? <br> <a href="#" id="show-register" class="switch-link">Create one here</a></p>
       <p style="margin-top: 10px;"><a href="#" id="show-forgot" class="forgot-link">Forgot Password?</a></p>
+      <button type="button" class="google-signin hidden" data-google-signin>Sign in with Google</button>
+    </div>
+
+    <!-- Email two-step login verification -->
+    <div class="form-box hidden" id="login-code-box">
+      <h2>Verify Your Sign-In</h2>
+      <p id="login-code-status" style="margin-bottom: 15px; font-size: 14px;">Enter the verification code sent to your email.</p>
+      <form id="login-code-form">
+        <input type="text" id="login-code" placeholder="6-digit code" required maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code">
+        <button type="submit">Verify &amp; Sign In</button>
+      </form>
+      <p style="margin-top: 10px;"><a href="#" id="back-to-login-from-code">Back to Login</a></p>
     </div>
 
     <!-- Forgot Password Form (Hidden) -->
@@ -104,12 +117,23 @@
     <!-- Success/Dashboard box (Hidden by default) -->
     <div class="form-box hidden" id="dashboard-box">
       <nav class="dashboard-nav" aria-label="Dashboard navigation">
-        <div class="dashboard-tabs" role="tablist" aria-label="Dashboard pages">
-          <button class="dashboard-tab active" id="home-tab" type="button" role="tab" aria-selected="true" aria-controls="home-panel" data-panel="home-panel">Home</button>
-          <button class="dashboard-tab" id="info-tab" type="button" role="tab" aria-selected="false" aria-controls="info-panel" data-panel="info-panel">Info</button>
-          <button class="dashboard-tab" id="about-tab" type="button" role="tab" aria-selected="false" aria-controls="about-panel" data-panel="about-panel">About</button>
+        <button class="menu-toggle" id="dashboard-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="dashboard-menu">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="dashboard-menu hidden" id="dashboard-menu">
+          <div class="dashboard-tabs" role="tablist" aria-label="Dashboard pages">
+            <button class="dashboard-tab active" id="home-tab" type="button" role="tab" aria-selected="true" aria-controls="home-panel" data-panel="home-panel">Home</button>
+            <button class="dashboard-tab" id="info-tab" type="button" role="tab" aria-selected="false" aria-controls="info-panel" data-panel="info-panel">Info</button>
+            <button class="dashboard-tab" id="about-tab" type="button" role="tab" aria-selected="false" aria-controls="about-panel" data-panel="about-panel">About</button>
+            <button class="privacy-tab" id="privacy-tab" type="button" aria-pressed="false" aria-controls="privacy-panel" data-panel="privacy-panel">Privacy</button>
+          </div>
+          <div class="theme-controls" role="group" aria-label="Color theme">
+            <span>Theme</span>
+            <button type="button" class="theme-button" data-theme-choice="light">Light</button>
+            <button type="button" class="theme-button" data-theme-choice="dark">Dark</button>
+            <button type="button" class="theme-button" data-theme-choice="custom">Custom</button>
+          </div>
         </div>
-        <button class="privacy-tab" id="privacy-tab" type="button" aria-pressed="false" aria-controls="privacy-panel" data-panel="privacy-panel">Privacy</button>
       </nav>
       <div class="dashboard-content">
         <section class="dashboard-panel" id="home-panel" role="tabpanel" aria-labelledby="home-tab">
@@ -141,6 +165,19 @@
             <summary>Password and security</summary>
             <p>Your password is stored as a <strong class="highlight">bcrypt hash</strong> and is never shown in your account.</p>
             <p>If you forget it, sign out and choose <strong class="highlight">Forgot Password</strong> on the login screen. Reset codes expire after 10 minutes.</p>
+            <p>Verification emails contain a short-lived code, never your password.</p>
+            <p id="two-step-status">Email two-step verification is off.</p>
+            <button class="security-action" id="two-step-enable" type="button">Set up email two-step verification</button>
+            <form class="hidden" id="two-step-setup-form">
+              <p>Enter the verification code sent to your registered email.</p>
+              <input type="text" id="two-step-setup-code" placeholder="6-digit code" required maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code">
+              <button type="submit">Confirm and enable</button>
+            </form>
+            <form class="hidden" id="two-step-disable-form">
+              <label for="two-step-current-password">Current password to turn off verification</label>
+              <input type="password" id="two-step-current-password" required autocomplete="current-password">
+              <button type="submit">Turn off email verification</button>
+            </form>
           </details>
           <details class="account-settings">
             <summary>Security tips</summary>
@@ -167,11 +204,11 @@
           <p class="dashboard-intro">This project uses account information to provide sign-in and password-recovery features.</p>
           <details class="account-settings">
             <summary>Information stored</summary>
-            <p>The app stores your <strong class="highlight">email address</strong> and a <strong class="highlight">bcrypt hash</strong> of your password. For password recovery, it also stores a hash of the reset code, its expiration time, and the number of attempts.</p>
+            <p>The app stores your <strong class="highlight">email address</strong> and a <strong class="highlight">bcrypt hash</strong> of your password. If you use Google sign-in, it also stores Google's account identifier. Temporary hashes and expiration data are stored for password-reset and email verification codes.</p>
           </details>
           <details class="account-settings">
             <summary>How information is used</summary>
-            <p>Your email and password are used to register and sign in. Your email is also used to deliver a password-reset code through the email service configured for the site.</p>
+            <p>Your email and password are used to register and sign in. When enabled, email two-step verification and password recovery send a short-lived code to your registered email. Google sign-in verifies your identity with Google.</p>
           </details>
           <details class="account-settings">
             <summary>Account controls</summary>
@@ -185,6 +222,7 @@
     </div>
 
   </div> <!-- End of container -->
+  <div id="auth-notice" class="auth-notice hidden" role="status"></div>
   <script src="app.js"></script>
 </body>
 </html>

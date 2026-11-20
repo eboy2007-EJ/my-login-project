@@ -4,10 +4,15 @@ const dashboardBox = document.getElementById('dashboard-box');
 const forgotBox = document.getElementById('forgot-box');
 const confirmCodeBox = document.getElementById('confirm-code-box');
 const resetBox = document.getElementById('reset-box');
+const loginCodeBox = document.getElementById('login-code-box');
 const mainContainer = document.querySelector('.container');
 let passwordResetEmail = '';
 let passwordResetCode = '';
 let currentAccountEmail = '';
+let loginChallengeEmail = '';
+
+const savedTheme = window.localStorage.getItem('site-theme') || 'custom';
+document.body.dataset.theme = ['light', 'dark', 'custom'].includes(savedTheme) ? savedTheme : 'custom';
 
 if (window.location.href.endsWith('/?') || window.location.href.endsWith('?')) {
   const cleanPath = window.location.pathname === '/' ? '' : window.location.pathname.replace(/\/+$/, '');
@@ -20,20 +25,35 @@ if (window.location.href.endsWith('/?') || window.location.href.endsWith('?')) {
 // Helper to hide ALL boxes
 function hideAll() {
   mainContainer.classList.remove('dashboard-active');
+  document.body.classList.remove('dashboard-open');
   registerBox.classList.add('hidden');
   loginBox.classList.add('hidden');
   dashboardBox.classList.add('hidden');
   if (forgotBox) forgotBox.classList.add('hidden');
   if (confirmCodeBox) confirmCodeBox.classList.add('hidden');
   if (resetBox) resetBox.classList.add('hidden');
+  if (loginCodeBox) loginCodeBox.classList.add('hidden');
 }
 
-function showDashboard(email) {
+function updateTwoStepUi(enabled, hasPassword = true) {
+  const enableButton = document.getElementById('two-step-enable');
+  const disableForm = document.getElementById('two-step-disable-form');
+  document.getElementById('two-step-status').textContent = hasPassword
+    ? enabled ? 'Email two-step verification is on.' : 'Email two-step verification is off.'
+    : 'This account uses Google sign-in. Manage its verification through Google.';
+  enableButton.classList.toggle('hidden', enabled || !hasPassword);
+  disableForm.classList.toggle('hidden', !enabled);
+  document.getElementById('two-step-setup-form').classList.add('hidden');
+}
+
+function showDashboard(email, twoStepEnabled, hasPassword) {
   hideAll();
   mainContainer.classList.add('dashboard-active');
+  document.body.classList.add('dashboard-open');
   dashboardBox.classList.remove('hidden');
   currentAccountEmail = email;
   document.getElementById('account-email-display').textContent = email;
+  updateTwoStepUi(Boolean(twoStepEnabled), hasPassword !== false);
   activateDashboardPanel('home-panel');
 }
 
@@ -47,7 +67,43 @@ function activateDashboardPanel(panelId) {
   document.querySelectorAll('.dashboard-panel').forEach((panel) => {
     panel.classList.toggle('hidden', panel.id !== panelId);
   });
+  document.getElementById('dashboard-menu').classList.add('hidden');
+  const menuToggle = document.getElementById('dashboard-menu-toggle');
+  menuToggle.setAttribute('aria-expanded', 'false');
+  menuToggle.setAttribute('aria-label', 'Open navigation menu');
 }
+
+document.getElementById('dashboard-menu-toggle').addEventListener('click', (event) => {
+  const button = event.currentTarget;
+  const menu = document.getElementById('dashboard-menu');
+  const isExpanded = button.getAttribute('aria-expanded') === 'true';
+  button.setAttribute('aria-expanded', String(!isExpanded));
+  button.setAttribute('aria-label', isExpanded ? 'Open navigation menu' : 'Close navigation menu');
+  menu.classList.toggle('hidden', isExpanded);
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  const menuToggle = document.getElementById('dashboard-menu-toggle');
+  if (menuToggle.getAttribute('aria-expanded') !== 'true') return;
+  menuToggle.click();
+  menuToggle.focus();
+});
+
+document.querySelectorAll('[data-theme-choice]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const theme = button.dataset.themeChoice;
+    document.body.dataset.theme = theme;
+    window.localStorage.setItem('site-theme', theme);
+    document.querySelectorAll('[data-theme-choice]').forEach((choice) => {
+      choice.setAttribute('aria-pressed', String(choice === button));
+    });
+  });
+});
+
+document.querySelectorAll('[data-theme-choice]').forEach((button) => {
+  button.setAttribute('aria-pressed', String(button.dataset.themeChoice === document.body.dataset.theme));
+});
 
 dashboardBox.addEventListener('click', (event) => {
   const tab = event.target.closest('[data-panel]');
@@ -86,6 +142,13 @@ if (backToLoginFromConfirm) backToLoginFromConfirm.addEventListener('click', (e)
 const backToLoginFromReset = document.getElementById('back-to-login-from-reset');
 if (backToLoginFromReset) backToLoginFromReset.addEventListener('click', (e) => {
   e.preventDefault();
+  hideAll();
+  loginBox.classList.remove('hidden');
+});
+
+const backToLoginFromCode = document.getElementById('back-to-login-from-code');
+if (backToLoginFromCode) backToLoginFromCode.addEventListener('click', (event) => {
+  event.preventDefault();
   hideAll();
   loginBox.classList.remove('hidden');
 });
@@ -258,6 +321,138 @@ document.getElementById('reset-form').addEventListener('submit', async (e) => {
   }
 });
 
+document.getElementById('login-code-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const codeInput = document.getElementById('login-code');
+  const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+
+  try {
+    const response = await fetch('/verify-login-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: loginChallengeEmail, code: codeInput.value.trim() })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to verify the sign-in code.');
+
+    loginChallengeEmail = '';
+    codeInput.value = '';
+    showDashboard(data.email, data.twoStepEnabled, data.hasPassword);
+  } catch (error) {
+    console.error('Sign-in code verification failed:', error);
+    alert(error.message || 'Failed to connect to the server.');
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+document.getElementById('two-step-enable').addEventListener('click', async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+
+  try {
+    const response = await fetch('/security/two-step/request', { method: 'POST' });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to request a verification code.');
+
+    document.getElementById('two-step-status').textContent =
+      `A verification code was sent to ${currentAccountEmail}.`;
+    document.getElementById('two-step-setup-form').classList.remove('hidden');
+    document.getElementById('two-step-setup-code').focus();
+  } catch (error) {
+    console.error('Could not start two-step verification:', error);
+    alert(error.message || 'Failed to connect to the server.');
+  } finally {
+    button.disabled = false;
+  }
+});
+
+document.getElementById('two-step-setup-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+
+  try {
+    const response = await fetch('/security/two-step/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: document.getElementById('two-step-setup-code').value.trim() })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to confirm the verification code.');
+
+    document.getElementById('two-step-setup-code').value = '';
+    updateTwoStepUi(true);
+  } catch (error) {
+    console.error('Could not enable two-step verification:', error);
+    alert(error.message || 'Failed to connect to the server.');
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+document.getElementById('two-step-disable-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+
+  try {
+    const response = await fetch('/security/two-step/disable', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: document.getElementById('two-step-current-password').value
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to turn off two-step verification.');
+
+    document.getElementById('two-step-current-password').value = '';
+    updateTwoStepUi(false);
+  } catch (error) {
+    console.error('Could not disable two-step verification:', error);
+    alert(error.message || 'Failed to connect to the server.');
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+document.querySelectorAll('[data-google-signin]').forEach((button) => {
+  button.addEventListener('click', () => {
+    window.location.assign('/auth/google');
+  });
+});
+
+fetch('/auth/google/config')
+  .then(async (response) => {
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to load Google sign-in settings.');
+    document.querySelectorAll('[data-google-signin]').forEach((button) => {
+      button.classList.toggle('hidden', !data.enabled);
+    });
+  })
+  .catch((error) => console.error('Could not load Google sign-in settings:', error));
+
+const authNotice = new URLSearchParams(window.location.search).get('authNotice');
+if (authNotice) {
+  const messages = {
+    googleUnavailable: 'Google sign-in is not configured for this site.',
+    googleFailed: 'Google sign-in could not be completed. Please try again.',
+    googleEmail: 'Google sign-in requires a verified email address.',
+    googleTwoStep: 'This account has email two-step verification enabled. Sign in with email and password to receive your verification code.'
+  };
+  if (messages[authNotice]) {
+    const notice = document.getElementById('auth-notice');
+    notice.textContent = messages[authNotice];
+    notice.classList.remove('hidden');
+    window.setTimeout(() => notice.classList.add('hidden'), 6000);
+  }
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
+
 // Handle Registration
 document.getElementById('register-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -274,7 +469,7 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
     const data = await response.json();
     
     if (response.ok) {
-      showDashboard(data.email);
+      showDashboard(data.email, data.twoStepEnabled, data.hasPassword);
     } else {
       alert("Error: " + data.error);
     }
@@ -299,8 +494,14 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
 
     const data = await response.json();
     
-    if (response.ok) {
-      showDashboard(data.email);
+    if (response.status === 202 && data.twoStepRequired) {
+      loginChallengeEmail = email.trim();
+      document.getElementById('login-code-status').textContent =
+        `Enter the verification code sent to ${loginChallengeEmail}.`;
+      hideAll();
+      loginCodeBox.classList.remove('hidden');
+    } else if (response.ok) {
+      showDashboard(data.email, data.twoStepEnabled, data.hasPassword);
     } else {
       alert("Error: " + data.error);
     }
@@ -317,7 +518,7 @@ async function restoreDashboardSession() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Unable to restore your sign-in.');
 
-    showDashboard(data.email);
+    showDashboard(data.email, data.twoStepEnabled, data.hasPassword);
   } catch (error) {
     console.error('Could not restore sign-in:', error);
   }

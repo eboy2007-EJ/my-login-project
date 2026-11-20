@@ -392,3 +392,302 @@ a:hover { text-decoration: underline; color: #e91e63; }
 .show-password-container label:hover {
   color: white;
 }
+
+body.dashboard-open {
+  overflow: hidden;
+}
+
+.container.dashboard-active {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  margin: 0;
+  padding: clamp(16px, 3vw, 36px);
+  background-color: rgba(13, 27, 62, 0.94);
+  border-radius: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#dashboard-box {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+}
+
+.dashboard-nav {
+  display: block;
+  position: relative;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.menu-toggle {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  width: 46px;
+  height: 42px;
+  padding: 10px;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #007bff, #9b59b6);
+}
+
+.menu-toggle span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: white;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.menu-toggle[aria-expanded="true"] span:first-child {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.menu-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle[aria-expanded="true"] span:last-child {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+.dashboard-menu {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  min-width: min(100%, 430px);
+  padding: 54px 14px 14px;
+  border: 1px solid rgba(79, 172, 254, 0.45);
+  border-radius: 12px;
+  background: #0d1b3e;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.dashboard-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #4a5b8c;
+}
+
+.theme-controls > span {
+  margin-right: 4px;
+  color: #ccc;
+  font-size: 13px;
+}
+
+.theme-button {
+  width: auto;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+
+.theme-button[aria-pressed="true"] {
+  outline: 2px solid #9bd8ff;
+  outline-offset: 2px;
+}
+
+.dashboard-content {
+  min-height: 0;
+}
+
+.google-signin {
+  margin-top: 12px;
+  background: #fff;
+  color: #242424;
+}
+
+.google-signin:hover {
+  background: #f0f0f0;
+  color: #111;
+}
+
+.security-action {
+  width: auto;
+  margin: 12px 0;
+  padding: 9px 13px;
+  font-size: 14px;
+}
+
+#two-step-setup-form,
+#two-step-disable-form {
+  margin-top: 12px;
+}
+
+#two-step-setup-form button,
+#two-step-disable-form button {
+  margin-bottom: 12px;
+}
+
+#two-step-disable-form label {
+  display: block;
+  margin-bottom: 8px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.auth-notice {
+  position: fixed;
+  z-index: 30;
+  right: 16px;
+  bottom: 16px;
+  max-width: min(420px, calc(100% - 32px));
+  padding: 14px 18px;
+  border: 1px solid #4facfe;
+  border-radius: 10px;
+  background: #0d1b3e;
+  color: white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+body[data-theme="light"] {
+  background: linear-gradient(135deg, rgba(235, 243, 255, 0.86), rgba(247, 239, 255, 0.88)), url("background.jpg") center / cover no-repeat fixed;
+  color: #161b26;
+}
+
+body[data-theme="light"] .container {
+  background-color: #f8faff;
+  box-shadow: 0 0 20px rgba(35, 67, 110, 0.32);
+}
+
+body[data-theme="light"] .form-box h2,
+body[data-theme="light"] .form-box p,
+body[data-theme="light"] .dashboard-panel p,
+body[data-theme="light"] .dashboard-list,
+body[data-theme="light"] .theme-controls > span,
+body[data-theme="light"] #two-step-disable-form label {
+  color: #202636;
+}
+
+body[data-theme="light"] .dashboard-eyebrow,
+body[data-theme="light"] .dashboard-card-label {
+  color: #161b26 !important;
+}
+
+body[data-theme="light"] .dashboard-panel h2,
+body[data-theme="light"] .dashboard-panel h3,
+body[data-theme="light"] .account-settings summary {
+  color: #161b26;
+}
+
+body[data-theme="light"] .dashboard-card,
+body[data-theme="light"] .dashboard-menu,
+body[data-theme="light"] .auth-notice {
+  background: #eef4fc;
+  color: #202636;
+}
+
+body[data-theme="light"] .dashboard-welcome {
+  background: #e5efff;
+}
+
+body[data-theme="light"] .dashboard-panel .highlight,
+body[data-theme="light"] .dashboard-card .dashboard-link,
+body[data-theme="light"] .dashboard-card .dashboard-link:hover {
+  color: #161b26 !important;
+}
+
+body[data-theme="light"] .dashboard-feature,
+body[data-theme="light"] .dashboard-feature:hover {
+  color: #202636;
+}
+
+body[data-theme="light"] .theme-controls > span,
+body[data-theme="light"] #two-step-disable-form label {
+  color: #202636;
+}
+
+body[data-theme="light"] input {
+  background: #fff;
+  color: #161b26;
+}
+
+body[data-theme="light"] .account-settings {
+  border-color: #b7c8df;
+}
+
+body[data-theme="light"] .show-password-container label {
+  color: #202636;
+}
+
+body[data-theme="dark"] {
+  background: linear-gradient(135deg, rgba(2, 5, 12, 0.94), rgba(10, 4, 18, 0.96)), url("background.jpg") center / cover no-repeat fixed;
+  color: #fff;
+}
+
+body[data-theme="dark"] .container,
+body[data-theme="dark"] .dashboard-menu,
+body[data-theme="dark"] .auth-notice {
+  background-color: #080b14;
+}
+
+body[data-theme="dark"] .container.dashboard-active {
+  background-color: rgba(8, 11, 20, 0.96);
+}
+
+body[data-theme="dark"] .dashboard-card {
+  background: #101522;
+}
+
+body[data-theme="dark"] .dashboard-panel p,
+body[data-theme="dark"] .dashboard-list,
+body[data-theme="dark"] .theme-controls > span,
+body[data-theme="dark"] #two-step-disable-form label {
+  color: #f4f6fb;
+}
+
+body[data-theme="dark"] .dashboard-panel h2,
+body[data-theme="dark"] .dashboard-panel h3,
+body[data-theme="dark"] .account-settings summary,
+body[data-theme="dark"] .dashboard-eyebrow,
+body[data-theme="dark"] .dashboard-card-label {
+  color: #fff !important;
+}
+
+body[data-theme="dark"] .dashboard-panel .highlight {
+  color: #b8dcff;
+}
+
+body[data-theme="dark"] .dashboard-card .dashboard-link {
+  color: #b8dcff !important;
+}
+
+body[data-theme="dark"] .dashboard-feature {
+  color: #f4f6fb;
+}
+
+body[data-theme="dark"] input {
+  background: #151a27;
+  color: #fff;
+}
+
+body[data-theme="dark"] .show-password-container label {
+  color: #f4f6fb;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-toggle span {
+    transition: none;
+  }
+}

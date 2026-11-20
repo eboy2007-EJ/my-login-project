@@ -16,6 +16,7 @@ Copy `.env.example` to `.env` for local development and replace the example valu
 - `PORT`: local server port.
 - `APP_NAME` and `SUPPORT_EMAIL`: used in reset-code emails.
 - `GMAIL_USER` and `GMAIL_APP_PASSWORD`: Gmail SMTP credentials for password recovery.
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI`: Google OAuth web-client credentials. Register the exact callback URL `/auth/google/callback` in Google Cloud Console.
 
 Do not commit `.env` or paste real credentials into source code. `.env.example` contains placeholders only. In MongoDB Atlas, create a database user and allow the server's IP address to connect. Use a least-privilege database user.
 
@@ -49,3 +50,13 @@ Registration and login create an HTTP-only JWT cookie that expires after one hou
 Password reset emails use Gmail SMTP. Enable 2-Step Verification and create a Google App Password for the sending account. Set `GMAIL_USER` and `GMAIL_APP_PASSWORD` in the environment. Never use your normal Gmail password.
 
 Reset codes expire after 10 minutes, can be attempted at most five times, and can be requested once per minute for each account.
+
+## Google sign-in and email two-step verification
+
+Google sign-in is enabled only when all three Google OAuth variables are configured. Create an OAuth 2.0 Web application client in Google Cloud Console, add the deployed callback URL as an authorized redirect URI, and use the exact same URL in `GOOGLE_REDIRECT_URI`. Google sign-in accepts verified Google email addresses and creates or links an account with the matching email.
+
+Google sign-in verifies identity; it is not a backup of your application data. Back up MongoDB separately.
+
+Local accounts can enable email two-step verification under **Info → Password and security**. Setup and sign-in codes are six digits, expire after 10 minutes, allow at most five attempts, and are sent to the account's registered email. Gmail SMTP must be configured. Google-only accounts use Google's own security and two-step verification settings.
+
+The app never sends account passwords by email. Recovery uses short-lived one-time codes instead.
